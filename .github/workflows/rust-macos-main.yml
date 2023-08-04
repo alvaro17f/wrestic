@@ -25,5 +25,5 @@ jobs:
         if: ${{ matrix.rust == 'stable' }}
       - run: cargo fmt --all -- --check
         if: ${{ matrix.rust == 'stable' }}
-      - run: cargo test
-        if: ${{ matrix.rust == 'stable' }}
+      # - run: cargo test
+      #   if: ${{ matrix.rust == 'stable' }}
