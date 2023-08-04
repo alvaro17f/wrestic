@@ -36,6 +36,7 @@ pub fn selector() -> Result<()> {
                     &env.repository,
                     &env.keep_last,
                     &env.backup_folder,
+                    false
                 );
                 selector()?
             }
@@ -44,7 +45,7 @@ pub fn selector() -> Result<()> {
                 selector()?
             }
             "3\n" => {
-                snapshots(&env.bucket, &env.repository);
+                snapshots(&env.bucket, &env.repository, false);
                 selector()?
             }
             "4\n" => {
