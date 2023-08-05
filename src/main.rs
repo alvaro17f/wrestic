@@ -3,19 +3,21 @@ mod modules;
 mod utils;
 
 use anyhow::{Ok, Result};
-use clap::{Parser, ValueEnum};
-use modules::{backup::backup, repair::repair, selector::selector, snapshots::snapshots};
+use clap::{Parser, Subcommand};
+use modules::{
+    backup::backup, forget::forget, repair::repair, selector::selector, snapshots::snapshots,
+};
 use utils::{get_env::dotenv, root_checker::is_root};
 
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
 struct Cli {
     /// List of available commands
-    #[arg(value_enum)]
+    #[command(subcommand)]
     command: Option<Command>,
 }
 
-#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
+#[derive(Subcommand)]
 enum Command {
     /// Make a backup
     Backup,
@@ -23,13 +25,15 @@ enum Command {
     Snapshots,
     /// Fix any issue
     Repair,
+    /// Delete snapshots
+    Forget { delete_snapshots: Vec<String> },
 }
 
 fn main() -> Result<()> {
     let env = dotenv()?;
 
     let cli = Cli::parse();
-    match cli.command {
+    match &cli.command {
         Some(Command::Backup) => {
             is_root()?;
             backup(
@@ -48,6 +52,10 @@ fn main() -> Result<()> {
         Some(Command::Repair) => {
             repair(&env.bucket, &env.repository, true);
             is_root()?;
+        }
+        Some(Command::Forget { delete_snapshots }) => {
+            is_root()?;
+            forget(&env.bucket, &env.repository, delete_snapshots, true);
         }
         None => {
             is_root()?;
