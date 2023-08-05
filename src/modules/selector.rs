@@ -36,7 +36,7 @@ pub fn selector() -> Result<()> {
                     &env.repository,
                     &env.keep_last,
                     &env.backup_folder,
-                    false
+                    false,
                 );
                 selector()?
             }
@@ -53,7 +53,7 @@ pub fn selector() -> Result<()> {
                 selector()?
             }
             "5\n" => {
-                repair(&env.bucket, &env.repository);
+                repair(&env.bucket, &env.repository, false);
                 selector()?
             }
             "6\n" => {
@@ -84,6 +84,3 @@ pub fn selector() -> Result<()> {
         }
     }
 }
-
-// docker_down(&user)?;
-// docker_up(&user)?;

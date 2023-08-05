@@ -1,5 +1,6 @@
 use crate::macros::anyhow::{error, uerror};
 use anyhow::{Context, Ok, Result};
+use std::path::PathBuf;
 use std::{env, fs};
 
 pub struct Env {
@@ -12,7 +13,27 @@ pub struct Env {
 }
 
 pub fn dotenv() -> Result<Env> {
-    let read_dotenv = fs::read_to_string(".env").context(error!("Failed to read .env file"))?;
+    fn find_env_file() -> Option<PathBuf> {
+        let home_dir = PathBuf::from("/home/");
+        let mut path = PathBuf::new();
+        for entry in fs::read_dir(home_dir).ok()? {
+            let entry = entry.ok()?;
+            let mut env_path = entry.path();
+            env_path.push(".config/wrestic/.env");
+            if env_path.exists() {
+                path = env_path;
+                break;
+            }
+        }
+        if path.exists() {
+            Some(path)
+        } else {
+            None
+        }
+    }
+
+    let env_file = find_env_file().ok_or_else(|| error!("Failed to find .env file"))?;
+    let read_dotenv = fs::read_to_string(env_file).context(error!("Failed to read .env file"))?;
 
     let dotenv: Vec<(&str, &str)> = read_dotenv
         .lines()

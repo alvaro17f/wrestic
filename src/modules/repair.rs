@@ -3,11 +3,18 @@ use color_print::cprintln;
 
 use crate::utils::utils::{clear, pause, read_input};
 
-pub fn repair(bucket: &str, repository: &str) {
+pub fn repair(bucket: &str, repository: &str, noconfirm: bool) {
     clear();
     cprintln!("<g>REPAIR");
     println!();
-    cprintln!("<y>Do you want to repair your repository? (Y/n): ");
+
+    if !noconfirm {
+        cprintln!("<y>Do you want to repair your repository? (Y/n): ");
+        if !read_input(true) {
+            return;
+        }
+    }
+
     if read_input(true) {
         if run_cmd!(
             restic -r b2:$bucket:$repository unlock;
@@ -19,6 +26,9 @@ pub fn repair(bucket: &str, repository: &str) {
         {
             cprintln!("<r>Failed to repair");
         }
-        pause();
+
+        if !noconfirm {
+            pause();
+        }
     }
 }

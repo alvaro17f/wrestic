@@ -4,7 +4,7 @@ mod utils;
 
 use anyhow::{Ok, Result};
 use clap::{Parser, ValueEnum};
-use modules::{backup::backup, selector::selector, snapshots::snapshots};
+use modules::{backup::backup, repair::repair, selector::selector, snapshots::snapshots};
 use utils::{get_env::dotenv, root_checker::is_root};
 
 #[derive(Parser)]
@@ -21,6 +21,8 @@ enum Command {
     Backup,
     /// List all snapshots
     Snapshots,
+    /// Fix any issue
+    Repair,
 }
 
 fn main() -> Result<()> {
@@ -29,6 +31,7 @@ fn main() -> Result<()> {
     let cli = Cli::parse();
     match cli.command {
         Some(Command::Backup) => {
+            is_root()?;
             backup(
                 &env.user,
                 &env.bucket,
@@ -39,7 +42,12 @@ fn main() -> Result<()> {
             );
         }
         Some(Command::Snapshots) => {
+            is_root()?;
             snapshots(&env.bucket, &env.repository, true);
+        }
+        Some(Command::Repair) => {
+            repair(&env.bucket, &env.repository, true);
+            is_root()?;
         }
         None => {
             is_root()?;
