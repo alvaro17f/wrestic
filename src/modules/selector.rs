@@ -3,7 +3,7 @@ use crate::{
         backup::backup, cache::cache, check::check, new_repository::new_repository, repair::repair,
         restore::restore, snapshots::snapshots,
     },
-    utils::{get_env::dotenv, utils::clear},
+    utils::{get_env::dotenv, tools::clear},
 };
 use anyhow::Result;
 use color_print::cprintln;

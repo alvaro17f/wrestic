@@ -1,7 +1,7 @@
 use cmd_lib::run_cmd;
 use color_print::cprintln;
 
-use crate::utils::utils::{clear, pause, read_input};
+use crate::utils::tools::{clear, pause, read_input};
 
 pub fn check(bucket: &str, repository: &str) {
     clear();
