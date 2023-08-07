@@ -1,14 +1,31 @@
+use crate::{
+    modules::selector::selector,
+    utils::tools::{clear, pause},
+};
+use anyhow::Result;
 use cmd_lib::run_cmd;
-use color_print::cprintln;
+use color_print::{cformat, cprintln};
+use dialoguer::{theme::ColorfulTheme, Confirm};
 
-use crate::utils::tools::{clear, pause, read_input};
-
-pub fn restore(user: &str, bucket: &str, repository: &str, restore_folder: &str) {
-    clear();
+pub fn restore(
+    user: &str,
+    bucket: &str,
+    repository: &str,
+    restore_folder: &str,
+    noconfirm: bool,
+) -> Result<()> {
+    clear()?;
     cprintln!("<g>RESTORE");
     println!();
-    cprintln!("<y>Do you want to restore your latest snapshot? (Y/n): ");
-    if read_input(true) {
+    cprintln!();
+    if noconfirm
+        || Confirm::with_theme(&ColorfulTheme::default())
+            .with_prompt(cformat!(
+                "<y>Do you want to restore your latest snapshot? (Y/n): "
+            ))
+            .default(true)
+            .interact()?
+    {
         if run_cmd!(
             restic -r b2:$bucket:$repository restore latest --target /home/$user$restore_folder
         )
@@ -16,6 +33,12 @@ pub fn restore(user: &str, bucket: &str, repository: &str, restore_folder: &str)
         {
             cprintln!("<r>Failed to restore");
         }
-        pause();
+        if !noconfirm {
+            pause()?;
+            selector()?;
+        }
+    } else {
+        selector()?;
     }
+    Ok(())
 }

@@ -1,14 +1,25 @@
+use anyhow::Result;
 use cmd_lib::run_cmd;
-use color_print::cprintln;
+use color_print::{cformat, cprintln};
+use dialoguer::{theme::ColorfulTheme, Confirm};
 
-use crate::utils::tools::{clear, pause, read_input};
+use crate::{
+    modules::selector::selector,
+    utils::tools::{clear, pause},
+};
 
-pub fn check(bucket: &str, repository: &str) {
-    clear();
+pub fn check(bucket: &str, repository: &str, noconfirm: bool) -> Result<()> {
+    clear()?;
     cprintln!("<g>CHECK");
     println!();
-    cprintln!("<y>Do you want to check if your repo is working fine? (Y/n): ");
-    if read_input(true) {
+    if noconfirm
+        || Confirm::with_theme(&ColorfulTheme::default())
+            .with_prompt(cformat!(
+                "<y>Do you want to check if your repo is working fine? (Y/n): "
+            ))
+            .default(true)
+            .interact()?
+    {
         if run_cmd!(
             restic -r b2:$bucket:$repository check;
         )
@@ -16,6 +27,12 @@ pub fn check(bucket: &str, repository: &str) {
         {
             cprintln!("<r>Failed to check");
         }
-        pause();
+        if !noconfirm {
+            pause()?;
+            selector()?;
+        }
+    } else {
+        selector()?;
     }
+    Ok(())
 }

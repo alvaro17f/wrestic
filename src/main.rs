@@ -2,10 +2,11 @@ mod macros;
 mod modules;
 mod utils;
 
-use anyhow::{Ok, Result};
+use anyhow::Result;
 use clap::{Parser, Subcommand};
 use modules::{
-    backup::backup, forget::forget, repair::repair, selector::selector, snapshots::snapshots,
+    backup::backup, cache::cache, check::check, forget::forget, new_repository::new_repository,
+    repair::repair, restore::restore, selector::selector, snapshots::snapshots,
 };
 use utils::{get_env::dotenv, root_checker::is_root};
 
@@ -21,10 +22,18 @@ struct Cli {
 enum Command {
     /// Make a backup
     Backup,
+    /// Restore a snapshot
+    Restore,
     /// List all snapshots
     Snapshots,
+    /// Check repository health
+    Check,
     /// Fix any issue
     Repair,
+    /// Clean cache
+    Cache,
+    /// Create a new repository
+    New,
     /// Delete snapshots
     Forget { delete_snapshots: Vec<String> },
 }
@@ -43,19 +52,41 @@ fn main() -> Result<()> {
                 &env.keep_last,
                 &env.backup_folder,
                 true,
-            );
+            )?;
+        }
+        Some(Command::Restore) => {
+            is_root()?;
+            restore(
+                &env.user,
+                &env.bucket,
+                &env.repository,
+                &env.restore_folder,
+                true,
+            )?;
         }
         Some(Command::Snapshots) => {
             is_root()?;
-            snapshots(&env.bucket, &env.repository, true);
+            snapshots(&env.bucket, &env.repository, true)?;
+        }
+        Some(Command::Check) => {
+            is_root()?;
+            check(&env.bucket, &env.repository, true)?;
         }
         Some(Command::Repair) => {
             is_root()?;
-            repair(&env.bucket, &env.repository, true);
+            repair(&env.bucket, &env.repository, true)?;
+        }
+        Some(Command::Cache) => {
+            is_root()?;
+            cache(true)?;
         }
         Some(Command::Forget { delete_snapshots }) => {
             is_root()?;
-            forget(&env.bucket, &env.repository, delete_snapshots, true);
+            forget(&env.bucket, &env.repository, delete_snapshots, true)?;
+        }
+        Some(Command::New) => {
+            is_root()?;
+            new_repository(&env.bucket, true)?;
         }
         None => {
             is_root()?;
