@@ -82,7 +82,7 @@ fn main() -> Result<()> {
         }
         Some(Command::Forget { delete_snapshots }) => {
             is_root()?;
-            forget(&env.bucket, &env.repository, delete_snapshots, true)?;
+            forget(&env.bucket, &env.repository, Some(delete_snapshots), true)?;
         }
         Some(Command::New) => {
             is_root()?;

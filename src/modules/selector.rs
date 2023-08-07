@@ -1,7 +1,7 @@
 use crate::{
     modules::{
-        backup::backup, cache::cache, check::check, new_repository::new_repository, repair::repair,
-        restore::restore, snapshots::snapshots,
+        backup::backup, cache::cache, check::check, forget::forget, new_repository::new_repository,
+        repair::repair, restore::restore, snapshots::snapshots,
     },
     utils::{get_env::dotenv, tools::clear},
 };
@@ -21,12 +21,14 @@ pub fn selector() -> Result<()> {
         "Check",
         "Repair",
         "Cache",
+        "Forget",
         "New Repository",
         exit_str.as_str(),
     ];
     let selection = Select::with_theme(&ColorfulTheme::default())
         .with_prompt(cformat!("<g>WRESTIC"))
         .default(0)
+        .max_length(10)
         .items(&selections[..])
         .interact()?;
 
@@ -61,6 +63,9 @@ pub fn selector() -> Result<()> {
         }
         "Cache" => {
             cache(false)?;
+        }
+        "Forget" => {
+            forget(&env.bucket, &env.repository, None, false)?;
         }
         "New Repository" => {
             new_repository(&env.bucket, false)?;
