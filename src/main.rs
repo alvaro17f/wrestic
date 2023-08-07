@@ -50,8 +50,8 @@ fn main() -> Result<()> {
             snapshots(&env.bucket, &env.repository, true);
         }
         Some(Command::Repair) => {
-            repair(&env.bucket, &env.repository, true);
             is_root()?;
+            repair(&env.bucket, &env.repository, true);
         }
         Some(Command::Forget { delete_snapshots }) => {
             is_root()?;

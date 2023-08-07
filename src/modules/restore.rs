@@ -5,9 +5,9 @@ use crate::utils::tools::{clear, pause, read_input};
 
 pub fn restore(user: &str, bucket: &str, repository: &str, restore_folder: &str) {
     clear();
-    cprintln!("<g>BACKUP");
+    cprintln!("<g>RESTORE");
     println!();
-    cprintln!("<y>Do you want to perform a backup? (Y/n): ");
+    cprintln!("<y>Do you want to restore your latest snapshot? (Y/n): ");
     if read_input(true) {
         if run_cmd!(
             restic -r b2:$bucket:$repository restore latest --target /home/$user$restore_folder
