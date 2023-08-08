@@ -19,10 +19,10 @@ pub fn forget(
     clear()?;
     cprintln!("<g>DELETE");
     println!();
-    let pb = ProgressBar::new_spinner();
     let delete_snapshots = match delete_snapshots {
         Some(snapshots) => snapshots.join(" "),
         None => {
+            let pb = ProgressBar::new_spinner();
             pb.enable_steady_tick(Duration::from_millis(120));
             pb.set_message("Loading snapshots...");
             let restic = Command::new("restic")
@@ -64,8 +64,6 @@ pub fn forget(
             .default(true)
             .interact()?
     {
-        pb.enable_steady_tick(Duration::from_millis(120));
-        pb.set_message("Deleting snapshot...");
         if run_cmd!(
 
             restic -r b2:$bucket:$repository forget $delete_snapshots;
@@ -82,7 +80,6 @@ pub fn forget(
                 cprintln!("<r>Houston, we have a problem! Failed to delete the snapshot AGAIN.");
             }
         }
-        pb.finish_and_clear();
         if !noconfirm {
             pause()?;
             selector()?;
