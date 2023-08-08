@@ -68,7 +68,8 @@ jobs:
         with:
           bin: "wrestic"
           target: ${{ matrix.target }}
-          archive: $bin-${{ matrix.target }}
+          archive: $bin
+          asset: target/release/wrestic
           zip: none
           tar: none
           ref: refs/tags/v${{ needs.get-tag.outputs.pkg-version }}
