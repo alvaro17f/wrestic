@@ -68,6 +68,6 @@ jobs:
         with:
           bin: "wrestic"
           target: ${{ matrix.target }}
-          archive: $bin-${{ matrix.target }}
+          archive: $bin
           ref: refs/tags/v${{ needs.get-tag.outputs.pkg-version }}
           token: ${{ secrets.GITHUB_TOKEN }}
