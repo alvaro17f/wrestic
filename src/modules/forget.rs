@@ -6,8 +6,9 @@ use anyhow::Result;
 use cmd_lib::run_cmd;
 use color_print::{cformat, cprintln};
 use dialoguer::{theme::ColorfulTheme, Confirm, Select};
+use indicatif::ProgressBar;
 use regex::Regex;
-use std::process::Command;
+use std::{process::Command, time::Duration};
 
 pub fn forget(
     bucket: &str,
@@ -18,9 +19,12 @@ pub fn forget(
     clear()?;
     cprintln!("<g>DELETE");
     println!();
+    let pb = ProgressBar::new_spinner();
     let delete_snapshots = match delete_snapshots {
         Some(snapshots) => snapshots.join(" "),
         None => {
+            pb.enable_steady_tick(Duration::from_millis(120));
+            pb.set_message("Loading snapshots...");
             let restic = Command::new("restic")
                 .arg("-r")
                 .arg(format!("b2:{}:{}", bucket, repository))
@@ -28,6 +32,8 @@ pub fn forget(
                 .arg("--verbose")
                 .arg("snapshots")
                 .output()?;
+            pb.finish_and_clear();
+
             let restic = String::from_utf8(restic.stdout)?;
 
             let selections = Regex::new(r"(\w+)\s+(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})")?
@@ -58,6 +64,8 @@ pub fn forget(
             .default(true)
             .interact()?
     {
+        pb.enable_steady_tick(Duration::from_millis(120));
+        pb.set_message("Deleting snapshot...");
         if run_cmd!(
 
             restic -r b2:$bucket:$repository forget $delete_snapshots;
@@ -74,6 +82,7 @@ pub fn forget(
                 cprintln!("<r>Houston, we have a problem! Failed to delete the snapshot AGAIN.");
             }
         }
+        pb.finish_and_clear();
         if !noconfirm {
             pause()?;
             selector()?;
