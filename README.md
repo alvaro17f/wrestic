@@ -1,6 +1,18 @@
 # WRESTIC
 
+:star: Star me up!
+
 Wrestic is a backup tool built in Rust that provides a wrapper around Restic, a popular backup program. With Wrestic, you can easily configure and run backups of your files and directories, and take advantage of Restic's powerful features such as deduplication, encryption, and compression. Whether you need to back up your personal files or your organization's data, Wrestic can help you automate the process and ensure your data is safe and secure.
+
+
+## Table of contents[![](https://raw.githubusercontent.com/aregtech/areg-sdk/master/docs/img/pin.svg)](#table-of-contents)
+  - [INSTALLATION](#installation)
+    - [BUILD FROM SOURCE](#build-from-source)
+    - [DOWNLOAD BINARY](#download-binary)
+  - [CONFIGURATION](#configuration)
+  - [USAGE](#usage)
+
+
 
 ## INSTALLATION
 
@@ -20,6 +32,10 @@ sudo cp target/release/wrestic /usr/local/bin
 ```sh
 sudo wget -N https://github.com/alvaro17f/wrestic/releases/download/latest/wrestic -P /usr/local/bin && sudo chmod +x /usr/local/bin/wrestic
 ```
+
+## CONFIGURATION
+
+Simply copy `.env.example` to `/home/$USER/.config/wrestic/.env` and modify the content for your needs.
 
 ## USAGE
 
