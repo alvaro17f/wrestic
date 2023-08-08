@@ -14,9 +14,14 @@ keywords = ["restic", "wrapper"]
 
 [dependencies]
 anyhow = "1.0.72"
+cargo-release = "0.24.11"
 clap = { version = "4.3.19", features = ["derive"] }
 cmd_lib = "1.3.0"
 color-print = "0.3.4"
 dialoguer = "0.10.4"
+indicatif = "0.17.6"
 libc = "0.2.147"
 regex = "1.9.3"
+
+[package.metadata.release]
+repository = "https://github.com/alvaro17f/wrestic"
