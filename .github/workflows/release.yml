@@ -70,7 +70,5 @@ jobs:
           target: ${{ matrix.target }}
           archive: $bin
           #   archive: $bin-${{ matrix.target }}
-          asset: /target/${{ matrix.target }}/release/wrestic
-          tar: none
           ref: refs/tags/v${{ needs.get-tag.outputs.pkg-version }}
           token: ${{ secrets.GITHUB_TOKEN }}
