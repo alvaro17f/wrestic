@@ -6,6 +6,8 @@ Wrestic is a backup tool built in Rust that provides a wrapper around Restic, a 
 
 
 ## Table of contents[![](https://raw.githubusercontent.com/aregtech/areg-sdk/master/docs/img/pin.svg)](#table-of-contents)
+- [WRESTIC](#wrestic)
+  - [Table of contents](#table-of-contents)
   - [INSTALLATION](#installation)
     - [BUILD FROM SOURCE](#build-from-source)
     - [DOWNLOAD BINARY](#download-binary)
@@ -30,7 +32,7 @@ sudo cp target/release/wrestic /usr/local/bin
 ### DOWNLOAD BINARY
 
 ```sh
-sudo wget -N https://github.com/alvaro17f/wrestic/releases/download/latest/wrestic -P /usr/local/bin && sudo chmod +x /usr/local/bin/wrestic
+curl -sL $(curl -s https://api.github.com/repos/alvaro17f/wrestic/releases/latest | grep browser_download_url | cut -d '"' -f 4) | sudo tar zxf - -C /usr/local/bin --overwrite
 ```
 
 ## CONFIGURATION
