@@ -37,7 +37,7 @@ pub fn backup(
         .is_err()
         {
             cprintln!(
-                "<r>Failed to forget keeping last snapshots, let's try to repair: "
+                "<r>Failed to forget keeping last {keep_last} snapshots, let's try to repair: "
             );
             repair(bucket, repository, true)?;
 
@@ -47,7 +47,7 @@ pub fn backup(
             .is_err()
             {
                 cprintln!(
-                "<r>Houston, we have a problem! Failed to forget keeping last snapshots AGAIN."
+                "<r>Houston, we have a problem! Failed to forget keeping last {keep_last} snapshots AGAIN."
             );
             }
         }

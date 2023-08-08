@@ -1,0 +1,73 @@
+name: "Release"
+
+permissions:
+  contents: "write"
+
+on:
+  workflow_run:
+    workflows: ["Tag"]
+    types:
+      - "completed"
+
+jobs:
+  get-tag:
+    name: "Get Tag From Package Version"
+    runs-on: "ubuntu-latest"
+    outputs:
+      pkg-version: ${{ steps.pkg-version.outputs.PKG_VERSION }} 
+    steps:
+      - name: "Check out the repo"
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: "Get tag"
+        id: "pkg-version"
+        shell: "bash"
+        run: |
+          echo PKG_VERSION=$(awk -F ' = ' '$1 ~ /version/ { gsub(/["]/, "", $2); printf("%s",$2) }' Cargo.toml) >> $GITHUB_OUTPUT
+
+  create-release:
+    name: "Create release"
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    needs: "get-tag"
+    runs-on: "ubuntu-latest"
+    steps:
+      - name: "Check out the repo"
+        uses: actions/checkout@v3
+      
+      - name: "Create release"
+        uses: "taiki-e/create-gh-release-action@v1"
+        with:
+          # (optional) Path to changelog.
+          # changelog: CHANGELOG.md
+          branch: "main"
+          ref: refs/tags/v${{ needs.get-tag.outputs.pkg-version }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+  upload-assets:
+    name: "Upload assets to Github releases"
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    needs: 
+     - "get-tag"
+     - "create-release"
+    strategy:
+      matrix:
+        include:
+          - target: "x86_64-unknown-linux-gnu"
+            os: "ubuntu-latest"
+          - target: "x86_64-unknown-linux-musl"
+            os: "ubuntu-latest"
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: "Check out the repo"
+        uses: actions/checkout@v3
+
+      - name: "Upload Binaries"
+        uses: "taiki-e/upload-rust-binary-action@v1"
+        with:
+          bin: "shazam"
+          target: ${{ matrix.target }}
+          archive: $bin-${{ matrix.target }}
+          ref: refs/tags/v${{ needs.get-tag.outputs.pkg-version }}
+          token: ${{ secrets.GITHUB_TOKEN }}
