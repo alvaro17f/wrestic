@@ -8,7 +8,6 @@ use color_print::{cformat, cprintln};
 use dialoguer::{theme::ColorfulTheme, Confirm};
 
 pub fn restore(
-    user: &str,
     bucket: &str,
     repository: &str,
     restore_folder: &str,
@@ -27,7 +26,7 @@ pub fn restore(
             .interact()?
     {
         if run_cmd!(
-            restic -r b2:$bucket:$repository restore latest --target /home/$user$restore_folder
+            restic -r b2:$bucket:$repository restore latest --target $restore_folder
         )
         .is_err()
         {

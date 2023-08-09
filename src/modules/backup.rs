@@ -8,7 +8,6 @@ use color_print::{cformat, cprintln};
 use dialoguer::{theme::ColorfulTheme, Confirm};
 
 pub fn backup(
-    user: &str,
     bucket: &str,
     repository: &str,
     keep_last: &str,
@@ -25,7 +24,7 @@ pub fn backup(
             .interact()?
     {
         if run_cmd!(
-            restic -r b2:$bucket:$repository --verbose --verbose backup /home/$user$backup_folder;
+            restic -r b2:$bucket:$repository --verbose --verbose backup $backup_folder;
         )
         .is_err()
         {

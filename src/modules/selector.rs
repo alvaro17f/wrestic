@@ -35,7 +35,6 @@ pub fn selector() -> Result<()> {
     match selections[selection] {
         "Backup" => {
             backup(
-                &env.user,
                 &env.bucket,
                 &env.repository,
                 &env.keep_last,
@@ -45,7 +44,6 @@ pub fn selector() -> Result<()> {
         }
         "Restore" => {
             restore(
-                &env.user,
                 &env.bucket,
                 &env.repository,
                 &env.restore_folder,
@@ -68,7 +66,7 @@ pub fn selector() -> Result<()> {
             forget(&env.bucket, &env.repository, None, false)?;
         }
         "New Repository" => {
-            new_repository(&env.bucket, false)?;
+            new_repository(&env.bucket, None, false)?;
         }
         "Exit" => {
             exit(0);

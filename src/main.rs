@@ -32,10 +32,10 @@ enum Command {
     Repair,
     /// Clean cache
     Cache,
-    /// Create a new repository
-    New,
     /// Delete snapshots
     Forget { delete_snapshots: Vec<String> },
+    /// Create a new repository
+    New { name: String },
 }
 
 fn main() -> Result<()> {
@@ -46,7 +46,6 @@ fn main() -> Result<()> {
         Some(Command::Backup) => {
             is_root()?;
             backup(
-                &env.user,
                 &env.bucket,
                 &env.repository,
                 &env.keep_last,
@@ -56,13 +55,7 @@ fn main() -> Result<()> {
         }
         Some(Command::Restore) => {
             is_root()?;
-            restore(
-                &env.user,
-                &env.bucket,
-                &env.repository,
-                &env.restore_folder,
-                true,
-            )?;
+            restore(&env.bucket, &env.repository, &env.restore_folder, true)?;
         }
         Some(Command::Snapshots) => {
             is_root()?;
@@ -84,9 +77,9 @@ fn main() -> Result<()> {
             is_root()?;
             forget(&env.bucket, &env.repository, Some(delete_snapshots), true)?;
         }
-        Some(Command::New) => {
+        Some(Command::New { name }) => {
             is_root()?;
-            new_repository(&env.bucket, true)?;
+            new_repository(&env.bucket, Some(name), true)?;
         }
         None => {
             is_root()?;
