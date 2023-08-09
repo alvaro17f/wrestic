@@ -54,10 +54,10 @@ jobs:
     strategy:
       matrix:
         include:
-          - target: "x86_64-unknown-linux-gnu"
-            os: "ubuntu-latest"
           - target: "x86_64-unknown-linux-musl"
             os: "ubuntu-latest"
+          # - target: "x86_64-unknown-linux-gnu"
+          #   os: "ubuntu-latest"
     runs-on: ${{ matrix.os }}
     steps:
       - name: "Check out the repo"
@@ -68,8 +68,7 @@ jobs:
         with:
           bin: "wrestic"
           target: ${{ matrix.target }}
-          archive: ${{ matrix.target == 'x86_64-unknown-linux-gnu' && '$bin' || '$bin-musl'  }}
-            # archive: $bin
-            # archive: $bin-${{ matrix.target }}
+          archive: $bin
+          # archive: $bin-${{ matrix.target }}
           ref: refs/tags/v${{ needs.get-tag.outputs.pkg-version }}
           token: ${{ secrets.GITHUB_TOKEN }}
