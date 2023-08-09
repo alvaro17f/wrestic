@@ -5,7 +5,6 @@ use crate::{
     utils::tools::{clear, pause},
 };
 use anyhow::Result;
-use cmd_lib::run_cmd;
 use color_print::{cformat, cprintln};
 use dialoguer::{theme::ColorfulTheme, Confirm};
 use indicatif::ProgressBar;
