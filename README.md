@@ -27,12 +27,12 @@ Requirements:
 git clone https://github.com/alvaro17f/wrestic.git
 cd wrestic
 cargo build --release
-sudo cp target/release/wrestic /usr/local/bin
+sudo cp target/release/wrestic /usr/bin
 ```
 ### DOWNLOAD BINARY
 
 ```sh
-curl -sL $(curl -s https://api.github.com/repos/alvaro17f/wrestic/releases/latest | grep browser_download_url | cut -d '"' -f 4) | sudo tar zxf - -C /usr/local/bin --overwrite
+curl -sL $(curl -s https://api.github.com/repos/alvaro17f/wrestic/releases/latest | grep browser_download_url | cut -d '"' -f 4) | sudo tar zxf - -C /usr/bin --overwrite
 ```
 
 ## CONFIGURATION
