@@ -1,14 +1,14 @@
 use crate::{
     modules::{repair::repair, selector::selector},
-    utils::tools::{clear, pause},
+    utils::{
+        snapshots_selector::snapshots_selector,
+        tools::{clear, pause},
+    },
 };
 use anyhow::Result;
 use cmd_lib::run_cmd;
 use color_print::{cformat, cprintln};
-use dialoguer::{theme::ColorfulTheme, Confirm, Select};
-use indicatif::ProgressBar;
-use regex::Regex;
-use std::{process::Command, time::Duration};
+use dialoguer::{theme::ColorfulTheme, Confirm};
 
 pub fn forget(
     bucket: &str,
@@ -21,46 +21,12 @@ pub fn forget(
     println!();
     let delete_snapshots = match delete_snapshots {
         Some(snapshots) => snapshots.join(" "),
-        None => {
-            let pb = ProgressBar::new_spinner();
-            pb.enable_steady_tick(Duration::from_millis(120));
-            pb.set_message("Loading snapshots...");
-            let restic = Command::new("restic")
-                .arg("-r")
-                .arg(format!("b2:{}:{}", bucket, repository))
-                .arg("--verbose")
-                .arg("--verbose")
-                .arg("snapshots")
-                .output()?;
-            pb.finish_and_clear();
-
-            let restic = String::from_utf8(restic.stdout)?;
-
-            let selections = Regex::new(r"(\w+)\s+(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})")?
-                .captures_iter(&restic)
-                .map(|cap| format!("[{}] - {}", &cap[1], &cap[2]))
-                .collect::<Vec<String>>();
-
-            let selection = Select::with_theme(&ColorfulTheme::default())
-                .with_prompt(cformat!("<g>Snapshots:"))
-                .default(0)
-                .max_length(10)
-                .items(&selections[..])
-                .interact()?;
-
-            let selection = Regex::new(r"(\w+)\s+(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})")?
-                .captures_iter(&restic)
-                .map(|cap| format!("{}", &cap[1]))
-                .collect::<Vec<String>>()[selection]
-                .clone();
-
-            selection.to_string()
-        }
+        None => snapshots_selector(bucket, repository)?,
     };
 
     if noconfirm
         || Confirm::with_theme(&ColorfulTheme::default())
-            .with_prompt(cformat!("<y>Do you want to delete snapshots? (Y/n): "))
+            .with_prompt(cformat!("<y>Do you want to delete the snapshot with ID {delete_snapshots}? (Y/n): "))
             .default(true)
             .interact()?
     {

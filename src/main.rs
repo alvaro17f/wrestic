@@ -23,7 +23,7 @@ enum Command {
     /// Make a backup
     Backup,
     /// Restore a snapshot
-    Restore,
+    Restore { restore_snapshot: String },
     /// List all snapshots
     Snapshots,
     /// Check repository health
@@ -55,8 +55,14 @@ fn main() -> Result<()> {
                 true,
             )?;
         }
-        Some(Command::Restore) => {
-            restore(&env.bucket, &env.repository, &env.restore_folder, true)?;
+        Some(Command::Restore { restore_snapshot }) => {
+            restore(
+                &env.bucket,
+                &env.repository,
+                &env.restore_folder,
+                Some(restore_snapshot.to_string()),
+                true,
+            )?;
         }
         Some(Command::Snapshots) => {
             snapshots(&env.bucket, &env.repository, true)?;

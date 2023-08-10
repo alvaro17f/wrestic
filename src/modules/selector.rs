@@ -47,6 +47,7 @@ pub fn selector() -> Result<()> {
                 &env.bucket,
                 &env.repository,
                 &env.restore_folder,
+                None,
                 false,
             )?;
         }
