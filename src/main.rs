@@ -8,7 +8,7 @@ use modules::{
     backup::backup, cache::cache, check::check, forget::forget, new_repository::new_repository,
     repair::repair, restore::restore, selector::selector, snapshots::snapshots,
 };
-use utils::{get_env::dotenv, root_checker::is_root};
+use utils::{get_env::dotenv, restic_checker::restic_checker, root_checker::root_checker};
 
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
@@ -39,12 +39,14 @@ enum Command {
 }
 
 fn main() -> Result<()> {
+    restic_checker()?;
+    root_checker()?;
+
     let env = dotenv()?;
 
     let cli = Cli::parse();
     match &cli.command {
         Some(Command::Backup) => {
-            is_root()?;
             backup(
                 &env.bucket,
                 &env.repository,
@@ -54,35 +56,27 @@ fn main() -> Result<()> {
             )?;
         }
         Some(Command::Restore) => {
-            is_root()?;
             restore(&env.bucket, &env.repository, &env.restore_folder, true)?;
         }
         Some(Command::Snapshots) => {
-            is_root()?;
             snapshots(&env.bucket, &env.repository, true)?;
         }
         Some(Command::Check) => {
-            is_root()?;
             check(&env.bucket, &env.repository, true)?;
         }
         Some(Command::Repair) => {
-            is_root()?;
             repair(&env.bucket, &env.repository, true)?;
         }
         Some(Command::Cache) => {
-            is_root()?;
             cache(true)?;
         }
         Some(Command::Forget { delete_snapshots }) => {
-            is_root()?;
             forget(&env.bucket, &env.repository, Some(delete_snapshots), true)?;
         }
         Some(Command::New { name }) => {
-            is_root()?;
             new_repository(&env.bucket, Some(name), true)?;
         }
         None => {
-            is_root()?;
             selector()?;
         }
     }

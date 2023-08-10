@@ -1,4 +1,4 @@
-use crate::macros::anyhow::{error, uerror};
+use crate::macros::anyhow::error;
 use anyhow::{Context, Ok, Result};
 use std::path::PathBuf;
 use std::{env, fs};
@@ -50,19 +50,19 @@ pub fn dotenv() -> Result<Env> {
         env::set_var(key, value);
     }
 
-    let user = env::var("USER").context(uerror!("please, add $USER to .env file"))?;
+    let user = env::var("USER").context(error!("please, add $USER to .env file"))?;
     if user.contains("root") {
-        Err(uerror!("please, add $USER to .env file"))?;
+        Err(error!("please, add $USER to .env file"))?;
     }
-    let bucket = env::var("BUCKET").context(uerror!("please, add $BUCKET to .env file"))?;
+    let bucket = env::var("BUCKET").context(error!("please, add $BUCKET to .env file"))?;
     let repository =
-        env::var("REPOSITORY").context(uerror!("please, add $REPOSITORY to .env file"))?;
+        env::var("REPOSITORY").context(error!("please, add $REPOSITORY to .env file"))?;
     let keep_last =
-        env::var("KEEP_LAST").context(uerror!("please, add $KEEP_LAST to .env file"))?;
+        env::var("KEEP_LAST").context(error!("please, add $KEEP_LAST to .env file"))?;
     let backup_folder =
-        env::var("BACKUP_FOLDER").context(uerror!("please, add $BACKUP_FOLDER to .env file"))?;
+        env::var("BACKUP_FOLDER").context(error!("please, add $BACKUP_FOLDER to .env file"))?;
     let restore_folder =
-        env::var("RESTORE_FOLDER").context(uerror!("please, add $RESTORE_FOLDER to .env file"))?;
+        env::var("RESTORE_FOLDER").context(error!("please, add $RESTORE_FOLDER to .env file"))?;
 
     let env = Env {
         backup_folder,
