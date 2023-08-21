@@ -1,7 +1,7 @@
+use crate::macros::anyhow::error;
 use anyhow::{Context, Result};
 use config::Config;
-
-use crate::macros::anyhow::error;
+use std::{fs, path::PathBuf};
 
 #[derive(Debug, Clone)]
 #[allow(dead_code)]
@@ -19,9 +19,30 @@ pub struct Settings {
 }
 
 pub fn get_config() -> Result<Vec<Settings>> {
+    fn find_config_file() -> Option<PathBuf> {
+        let home_dir = PathBuf::from("/home/");
+        let mut path = PathBuf::new();
+        for entry in fs::read_dir(home_dir).ok()? {
+            let entry = entry.ok()?;
+            let mut env_path = entry.path();
+            env_path.push(".config/wrestic/wrestic.toml");
+            if env_path.exists() {
+                path = env_path;
+                break;
+            }
+        }
+        if path.exists() {
+            Some(path)
+        } else {
+            None
+        }
+    }
     let config = Config::builder()
         .add_source(config::File::with_name(
-            "/home/alvaro17f/.config/wrestic/wrestic.toml",
+            find_config_file()
+                .context(error!("Failed to find config file"))?
+                .to_str()
+                .context(error!("Failed to convert config path to string"))?,
         ))
         .build()?;
 
