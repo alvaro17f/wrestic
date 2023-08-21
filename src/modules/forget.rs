@@ -16,7 +16,7 @@ use std::env;
 
 pub fn forget(settings: &Vec<Settings>, noconfirm: bool) -> Result<()> {
     clear()?;
-    cprintln!("<g>DELETE");
+    cprintln!("<C>DELETE");
     println!();
     let selection = if settings.len() > 1 {
         let selections: Vec<String> = settings.iter().map(|x| x.name.clone()).collect();

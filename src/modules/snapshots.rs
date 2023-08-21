@@ -34,7 +34,7 @@ fn get_snapshots(bucket: &str, repository: &str) -> Result<()> {
 
 pub fn snapshots(settings: &Vec<Settings>, noconfirm: bool) -> Result<()> {
     clear()?;
-    cprintln!("<g>SNAPSHOTS");
+    cprintln!("<C>SNAPSHOTS");
     println!();
 
     let selection = if settings.len() > 1 {

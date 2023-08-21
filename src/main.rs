@@ -72,7 +72,7 @@ fn main() -> Result<()> {
         }
         Some(Command::Repair) => {
             clear()?;
-            cprintln!("<g>REPAIR");
+            cprintln!("<C>REPAIR");
             println!();
             let selection = if settings.len() > 1 {
                 let selections: Vec<String> = settings.iter().map(|x| x.name.clone()).collect();

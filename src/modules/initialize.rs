@@ -13,7 +13,7 @@ use std::env;
 
 pub fn initialize(settings: &Vec<Settings>, noconfirm: bool) -> Result<()> {
     clear()?;
-    cprintln!("<g>INITIALIZE REPOSITORIES");
+    cprintln!("<C>INITIALIZE REPOSITORIES");
     println!();
 
     if Confirm::with_theme(&ColorfulTheme::default())
