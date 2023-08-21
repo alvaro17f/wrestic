@@ -1,4 +1,4 @@
-use std::env;
+#![allow(clippy::collapsible_if)]
 
 use crate::{
     modules::{repair::repair, selector::selector},
@@ -12,6 +12,7 @@ use anyhow::Result;
 use cmd_lib::run_cmd;
 use color_print::{cformat, cprintln};
 use dialoguer::{theme::ColorfulTheme, Confirm, Select};
+use std::env;
 
 pub fn forget(settings: &Vec<Settings>, noconfirm: bool) -> Result<()> {
     clear()?;
@@ -72,6 +73,7 @@ pub fn forget(settings: &Vec<Settings>, noconfirm: bool) -> Result<()> {
             pause()?;
         }
     }
+
     if !noconfirm {
         selector()?;
     }

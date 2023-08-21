@@ -9,7 +9,7 @@ use color_print::{cformat, cprintln};
 use dialoguer::{theme::ColorfulTheme, Select};
 use modules::{
     backup::backup, cache::cache, check::check, forget::forget, initialize::initialize,
-    repair::repair, restore::restore, selector::selector, snapshots::snapshots,
+    repair::repair, restore::restore, selector::selector, snapshots::snapshots, update::update,
 };
 use std::env;
 use utils::{get_config::get_config, restic_checker::restic_checker, root_checker::root_checker};
@@ -28,18 +28,20 @@ enum Command {
     Backup,
     /// Restore a snapshot
     Restore,
-    /// List all snapshots
+    /// List snapshots
     Snapshots,
+    /// Delete a snapshot
+    Forget,
+    /// Initialize all of your repositories
+    Init,
     /// Check repository health
     Check,
     /// Fix any issue
     Repair,
     /// Clean cache
     Cache,
-    /// Delete a snapshot
-    Forget,
-    /// Initialize all of your repositories
-    Init,
+    /// Update Wrestic
+    Update,
 }
 
 fn main() -> Result<()> {
@@ -58,6 +60,12 @@ fn main() -> Result<()> {
         }
         Some(Command::Snapshots) => {
             snapshots(&settings, true)?;
+        }
+        Some(Command::Forget) => {
+            forget(&settings, true)?;
+        }
+        Some(Command::Init) => {
+            initialize(&settings, true)?;
         }
         Some(Command::Check) => {
             check(&settings, true)?;
@@ -91,11 +99,8 @@ fn main() -> Result<()> {
         Some(Command::Cache) => {
             cache(true)?;
         }
-        Some(Command::Forget) => {
-            forget(&settings, true)?;
-        }
-        Some(Command::Init) => {
-            initialize(&settings, true)?;
+        Some(Command::Update) => {
+            update(true)?;
         }
         None => {
             selector()?;

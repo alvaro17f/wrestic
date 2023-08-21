@@ -42,6 +42,8 @@ Simply copy `wrestic.toml` to `/home/$USER/.config/wrestic/wrestic.toml` and mod
 
 ## USAGE
 
+simply run `sudo wrestic`.
+
 ```sh
 $ wrestic help
 
@@ -52,12 +54,13 @@ Usage: wrestic [COMMAND]
 Commands:
   backup     Make a backup of all your repositories
   restore    Restore a snapshot
-  snapshots  List all snapshots
+  snapshots  List snapshots
+  forget     Delete a snapshot
+  init       Initialize all of your repositories
   check      Check repository health
   repair     Fix any issue
   cache      Clean cache
-  forget     Delete a snapshot
-  init       Initialize all of your repositories
+  update     Update Wrestic
   help       Print this message or the help of the given subcommand(s)
 
 Options:

@@ -7,3 +7,4 @@ pub mod repair;
 pub mod restore;
 pub mod selector;
 pub mod snapshots;
+pub mod update;

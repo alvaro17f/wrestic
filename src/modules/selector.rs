@@ -1,7 +1,7 @@
 use crate::{
     modules::{
         backup::backup, cache::cache, check::check, forget::forget, initialize::initialize,
-        repair::repair, restore::restore, snapshots::snapshots,
+        repair::repair, restore::restore, snapshots::snapshots, update::update,
     },
     utils::{get_config::get_config, tools::clear},
 };
@@ -18,11 +18,12 @@ pub fn selector() -> Result<()> {
         "Backup",
         "Restore",
         "Snapshots",
+        "Forget",
+        "Initialize",
         "Check",
         "Repair",
         "Cache",
-        "Forget",
-        "Initialize",
+        "Update",
         exit_str.as_str(),
     ];
     let selection = Select::with_theme(&ColorfulTheme::default())
@@ -41,6 +42,12 @@ pub fn selector() -> Result<()> {
         }
         "Snapshots" => {
             snapshots(&settings, false)?;
+        }
+        "Forget" => {
+            forget(&settings, false)?;
+        }
+        "Initialize" => {
+            initialize(&settings, false)?;
         }
         "Check" => {
             check(&settings, false)?;
@@ -75,11 +82,8 @@ pub fn selector() -> Result<()> {
         "Cache" => {
             cache(false)?;
         }
-        "Forget" => {
-            forget(&settings, false)?;
-        }
-        "Initialize" => {
-            initialize(&settings, false)?;
+        "Update" => {
+            update(false)?;
         }
         "Exit" => {
             exit(0);
