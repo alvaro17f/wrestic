@@ -1,0 +1,26 @@
+[user]
+USER = "yourcomputerusername"
+
+[settings.yourcustomanduniqueid]
+B2_ACCOUNT_ID = "yourbackblazeb2accountid"
+B2_ACCOUNT_KEY = "yourbackblazeb2accountkey"
+RESTIC_PASSWORD = "yourresticrepopassword"
+BUCKET = "yourbucketname"
+REPOSITORY = "yourrepositoryname"
+BACKUP_FOLDER = "/home/yourcomputerusername/backupthisfolder"
+RESTORE_FOLDER = "/home/yourcomputerusername/restoretothisfolder"
+KEEP_LAST = 10
+
+[settings.yourothercustomanduniqueid]
+B2_ACCOUNT_ID = "yourbackblazeb2accountid"
+B2_ACCOUNT_KEY = "yourbackblazeb2accountkey"
+RESTIC_PASSWORD = "youotherrresticrepopassword"
+BUCKET = "yourotherbucketname"
+REPOSITORY = "yourotherrepositoryname"
+BACKUP_FOLDER = "/home/yourcomputerusername/backupthisotherfolder"
+RESTORE_FOLDER = "/home/yourcomputerusername/restoretothisotherfolder"
+KEEP_LAST = 8
+
+#  You can add as many settings as you want, just make sure the id is unique
+#  and remember, if your repository doesn't exist, it will be created
+#  and password will be set to the one you provided in RESTIC_PASSWORD

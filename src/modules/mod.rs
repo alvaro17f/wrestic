@@ -2,7 +2,7 @@ pub mod backup;
 pub mod cache;
 pub mod check;
 pub mod forget;
-pub mod new_repository;
+pub mod initialize;
 pub mod repair;
 pub mod restore;
 pub mod selector;

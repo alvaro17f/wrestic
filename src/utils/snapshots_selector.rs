@@ -1,10 +1,9 @@
-use std::{process::Command, time::Duration};
-
 use anyhow::Result;
 use color_print::cformat;
 use dialoguer::{theme::ColorfulTheme, Select};
 use indicatif::ProgressBar;
 use regex::Regex;
+use std::{process::Command, time::Duration};
 
 pub fn snapshots_selector(bucket: &str, repository: &str) -> Result<String> {
     let pb = ProgressBar::new_spinner();
@@ -42,7 +41,7 @@ pub fn snapshots_selector(bucket: &str, repository: &str) -> Result<String> {
 
     let selection = Regex::new(r"(\w+)\s+(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})")?
         .captures_iter(&restic_rev)
-        .map(|cap| format!("{}", &cap[1]))
+        .map(|cap| (cap[1]).to_string())
         .collect::<Vec<String>>()[selection]
         .clone();
 

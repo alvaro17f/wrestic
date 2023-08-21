@@ -1,16 +1,10 @@
-use crate::{
-    modules::selector::selector,
-    utils::tools::{clear, pause},
-};
+use crate::{modules::selector::selector, utils::tools::pause};
 use anyhow::Result;
 use cmd_lib::run_cmd;
 use color_print::{cformat, cprintln};
 use dialoguer::{theme::ColorfulTheme, Confirm};
 
 pub fn repair(bucket: &str, repository: &str, noconfirm: bool) -> Result<()> {
-    clear()?;
-    cprintln!("<g>REPAIR");
-    println!();
     if noconfirm
         || Confirm::with_theme(&ColorfulTheme::default())
             .with_prompt(cformat!(

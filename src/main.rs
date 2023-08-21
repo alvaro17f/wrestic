@@ -2,13 +2,17 @@ mod macros;
 mod modules;
 mod utils;
 
+use crate::utils::tools::clear;
 use anyhow::Result;
 use clap::{Parser, Subcommand};
+use color_print::{cformat, cprintln};
+use dialoguer::{theme::ColorfulTheme, Select};
 use modules::{
-    backup::backup, cache::cache, check::check, forget::forget, new_repository::new_repository,
+    backup::backup, cache::cache, check::check, forget::forget, initialize::initialize,
     repair::repair, restore::restore, selector::selector, snapshots::snapshots,
 };
-use utils::{get_env::dotenv, restic_checker::restic_checker, root_checker::root_checker};
+use std::env;
+use utils::{get_config::get_config, restic_checker::restic_checker, root_checker::root_checker};
 
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
@@ -20,10 +24,10 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Command {
-    /// Make a backup
+    /// Make a backup of all your repositories
     Backup,
     /// Restore a snapshot
-    Restore { restore_snapshot: String },
+    Restore,
     /// List all snapshots
     Snapshots,
     /// Check repository health
@@ -32,55 +36,66 @@ enum Command {
     Repair,
     /// Clean cache
     Cache,
-    /// Delete snapshots
-    Forget { delete_snapshots: Vec<String> },
-    /// Create a new repository
-    New { name: String },
+    /// Delete a snapshot
+    Forget,
+    /// Initialize all of your repositories
+    Init,
 }
 
 fn main() -> Result<()> {
     restic_checker()?;
     root_checker()?;
 
-    let env = dotenv()?;
+    let settings = get_config()?;
 
     let cli = Cli::parse();
     match &cli.command {
         Some(Command::Backup) => {
-            backup(
-                &env.bucket,
-                &env.repository,
-                &env.keep_last,
-                &env.backup_folder,
-                true,
-            )?;
+            backup(&settings, true)?;
         }
-        Some(Command::Restore { restore_snapshot }) => {
-            restore(
-                &env.bucket,
-                &env.repository,
-                &env.restore_folder,
-                Some(restore_snapshot.to_string()),
-                true,
-            )?;
+        Some(Command::Restore) => {
+            restore(&settings, true)?;
         }
         Some(Command::Snapshots) => {
-            snapshots(&env.bucket, &env.repository, true)?;
+            snapshots(&settings, true)?;
         }
         Some(Command::Check) => {
-            check(&env.bucket, &env.repository, true)?;
+            check(&settings, true)?;
         }
         Some(Command::Repair) => {
-            repair(&env.bucket, &env.repository, true)?;
+            clear()?;
+            cprintln!("<g>REPAIR");
+            println!();
+            let selection = if settings.len() > 1 {
+                let selections: Vec<String> = settings.iter().map(|x| x.name.clone()).collect();
+                Select::with_theme(&ColorfulTheme::default())
+                    .with_prompt(cformat!("<y>Where do you want to perform a repair?"))
+                    .default(0)
+                    .max_length(10)
+                    .items(&selections[..])
+                    .interact()?
+            } else {
+                0
+            };
+
+            env::set_var("USER", &settings[selection].user);
+            env::set_var("B2_ACCOUNT_ID", &settings[selection].account_id);
+            env::set_var("RESTIC_PASSWORD", &settings[selection].restic_password);
+            env::set_var("B2_ACCOUNT_ID", &settings[selection].account_id);
+            env::set_var("B2_ACCOUNT_KEY", &settings[selection].account_key);
+
+            let bucket = &settings[selection].bucket;
+            let repository = &settings[selection].repository;
+            repair(bucket, repository, true)?;
         }
         Some(Command::Cache) => {
             cache(true)?;
         }
-        Some(Command::Forget { delete_snapshots }) => {
-            forget(&env.bucket, &env.repository, Some(delete_snapshots), true)?;
+        Some(Command::Forget) => {
+            forget(&settings, true)?;
         }
-        Some(Command::New { name }) => {
-            new_repository(&env.bucket, Some(name), true)?;
+        Some(Command::Init) => {
+            initialize(&settings, true)?;
         }
         None => {
             selector()?;

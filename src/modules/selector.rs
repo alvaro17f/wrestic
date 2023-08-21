@@ -1,18 +1,18 @@
 use crate::{
     modules::{
-        backup::backup, cache::cache, check::check, forget::forget, new_repository::new_repository,
+        backup::backup, cache::cache, check::check, forget::forget, initialize::initialize,
         repair::repair, restore::restore, snapshots::snapshots,
     },
-    utils::{get_env::dotenv, tools::clear},
+    utils::{get_config::get_config, tools::clear},
 };
 use anyhow::Result;
-use color_print::cformat;
+use color_print::{cformat, cprintln};
 use dialoguer::{theme::ColorfulTheme, Select};
-use std::process::exit;
+use std::{env, process::exit};
 
 pub fn selector() -> Result<()> {
     clear()?;
-    let env = dotenv()?;
+    let settings = get_config()?;
     let exit_str = cformat!("<r>Exit");
     let selections = &[
         "Backup",
@@ -22,7 +22,7 @@ pub fn selector() -> Result<()> {
         "Repair",
         "Cache",
         "Forget",
-        "New Repository",
+        "Initialize",
         exit_str.as_str(),
     ];
     let selection = Select::with_theme(&ColorfulTheme::default())
@@ -34,40 +34,52 @@ pub fn selector() -> Result<()> {
 
     match selections[selection] {
         "Backup" => {
-            backup(
-                &env.bucket,
-                &env.repository,
-                &env.keep_last,
-                &env.backup_folder,
-                false,
-            )?;
+            backup(&settings, false)?;
         }
         "Restore" => {
-            restore(
-                &env.bucket,
-                &env.repository,
-                &env.restore_folder,
-                None,
-                false,
-            )?;
+            restore(&settings, false)?;
         }
         "Snapshots" => {
-            snapshots(&env.bucket, &env.repository, false)?;
+            snapshots(&settings, false)?;
         }
         "Check" => {
-            check(&env.bucket, &env.repository, false)?;
+            check(&settings, false)?;
         }
         "Repair" => {
-            repair(&env.bucket, &env.repository, false)?;
+            clear()?;
+            cprintln!("<g>REPAIR");
+            println!();
+            let selection = if settings.len() > 1 {
+                let selections: Vec<String> = settings.iter().map(|x| x.name.clone()).collect();
+                Select::with_theme(&ColorfulTheme::default())
+                    .with_prompt(cformat!("<y>Where do you want to perform a repair?"))
+                    .default(0)
+                    .max_length(10)
+                    .items(&selections[..])
+                    .interact()?
+            } else {
+                0
+            };
+
+            env::set_var("USER", &settings[selection].user);
+            env::set_var("B2_ACCOUNT_ID", &settings[selection].account_id);
+            env::set_var("RESTIC_PASSWORD", &settings[selection].restic_password);
+            env::set_var("B2_ACCOUNT_ID", &settings[selection].account_id);
+            env::set_var("B2_ACCOUNT_KEY", &settings[selection].account_key);
+
+            let bucket = &settings[selection].bucket;
+            let repository = &settings[selection].repository;
+
+            repair(bucket, repository, false)?;
         }
         "Cache" => {
             cache(false)?;
         }
         "Forget" => {
-            forget(&env.bucket, &env.repository, None, false)?;
+            forget(&settings, false)?;
         }
-        "New Repository" => {
-            new_repository(&env.bucket, None, false)?;
+        "Initialize" => {
+            initialize(&settings, false)?;
         }
         "Exit" => {
             exit(0);

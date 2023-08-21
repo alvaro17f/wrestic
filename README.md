@@ -4,10 +4,11 @@
 
 Wrestic is a backup tool built in Rust that provides a wrapper around Restic, a popular backup program. With Wrestic, you can easily configure and run backups of your files and directories, and take advantage of Restic's powerful features such as deduplication, encryption, and compression. Whether you need to back up your personal files or your organization's data, Wrestic can help you automate the process and ensure your data is safe and secure.
 
+> ⚠️ by now, it only works with Backblaze B2
 
-## Table of contents[![](https://raw.githubusercontent.com/aregtech/areg-sdk/master/docs/img/pin.svg)](#table-of-contents)
+## TABLE OF CONTENTS[![](https://raw.githubusercontent.com/aregtech/areg-sdk/master/docs/img/pin.svg)](#table-of-contents)
 - [WRESTIC](#wrestic)
-  - [Table of contents](#table-of-contents)
+  - [TABLE OF CONTENTS](#table-of-contents)
   - [INSTALLATION](#installation)
     - [BUILD FROM SOURCE](#build-from-source)
     - [DOWNLOAD BINARY](#download-binary)
@@ -37,7 +38,7 @@ curl -sL $(curl -s https://api.github.com/repos/alvaro17f/wrestic/releases/lates
 
 ## CONFIGURATION
 
-Simply copy `.env.example` to `/home/$USER/.config/wrestic/.env` and modify the content for your needs.
+Simply copy `wrestic.toml` to `/home/$USER/.config/wrestic/wrestic.toml` and modify the content for your needs.
 
 ## USAGE
 
@@ -49,14 +50,14 @@ Restic wrapper in Rust
 Usage: wrestic [COMMAND]
 
 Commands:
-  backup     Make a backup
+  backup     Make a backup of all your repositories
   restore    Restore a snapshot
   snapshots  List all snapshots
   check      Check repository health
   repair     Fix any issue
   cache      Clean cache
-  new        Create a new repository
-  forget     Delete snapshots
+  forget     Delete a snapshot
+  init       Initialize all of your repositories
   help       Print this message or the help of the given subcommand(s)
 
 Options:
