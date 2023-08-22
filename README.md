@@ -10,14 +10,20 @@ Wrestic is a backup tool built in Rust that provides a wrapper around Restic, a 
 - [WRESTIC](#wrestic)
   - [TABLE OF CONTENTS](#table-of-contents)
   - [INSTALLATION](#installation)
-    - [BUILD FROM SOURCE](#build-from-source)
     - [DOWNLOAD BINARY](#download-binary)
+    - [BUILD FROM SOURCE](#build-from-source)
   - [CONFIGURATION](#configuration)
   - [USAGE](#usage)
 
 
 
 ## INSTALLATION
+
+### DOWNLOAD BINARY
+
+```sh
+curl -sL $(curl -s https://api.github.com/repos/alvaro17f/wrestic/releases/latest | grep browser_download_url | cut -d '"' -f 4) | sudo tar zxf - -C /usr/bin --overwrite
+```
 
 ### BUILD FROM SOURCE
 Requirements:
@@ -29,11 +35,6 @@ git clone https://github.com/alvaro17f/wrestic.git
 cd wrestic
 cargo build --release
 sudo cp target/release/wrestic /usr/bin
-```
-### DOWNLOAD BINARY
-
-```sh
-curl -sL $(curl -s https://api.github.com/repos/alvaro17f/wrestic/releases/latest | grep browser_download_url | cut -d '"' -f 4) | sudo tar zxf - -C /usr/bin --overwrite
 ```
 
 ## CONFIGURATION
