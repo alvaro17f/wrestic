@@ -9,6 +9,24 @@ use color_print::cprintln;
 use indicatif::ProgressBar;
 use std::{process::Command, time::Duration};
 
+fn get_installed_version() -> std::io::Result<String> {
+    let output = Command::new("wrestic").arg("--version").output()?;
+    let version_string = String::from_utf8_lossy(&output.stdout);
+    let version = version_string.trim_start_matches("wrestic ").to_string();
+    Ok(version)
+}
+fn get_latest_version(url: &str) -> std::io::Result<String> {
+    let output = Command::new("sh")
+        .arg("-c")
+        .arg(format!(
+            r#"curl -s "{url}" | grep tag_name | grep -Eo '[0-9.]+'"#
+        ))
+        .output()?;
+    let version_string = String::from_utf8_lossy(&output.stdout);
+    let version = version_string.trim().to_string();
+    Ok(version)
+}
+
 pub fn update(noconfirm: bool) -> Result<()> {
     clear()?;
     cprintln!("<c,u,s>UPDATER");
@@ -16,7 +34,7 @@ pub fn update(noconfirm: bool) -> Result<()> {
 
     let url = "https://api.github.com/repos/alvaro17f/wrestic/releases/latest";
     let command = format!(
-        r#"curl -sL $(curl -s "{url}" | grep browser_download_url | cut -d '"' -f 4) | sudo tar zxf - -C /usr/bin --overwrite"#
+        r#"curl -sL $(curl -s "{url}" | grep browser_download_url | cut -d '"' -f 4) -o /tmp/wrestic.tar.gz && sudo tar zxf /tmp/wrestic.tar.gz -C /usr/bin --overwrite && sudo rm -rf /tmp/wrestic.tar.gz"#
     );
 
     if get_installed_version()? >= get_latest_version(url)? {
@@ -52,22 +70,4 @@ pub fn update(noconfirm: bool) -> Result<()> {
         selector()?;
     }
     Ok(())
-}
-
-fn get_installed_version() -> std::io::Result<String> {
-    let output = Command::new("wrestic").arg("--version").output()?;
-    let version_string = String::from_utf8_lossy(&output.stdout);
-    let version = version_string.trim_start_matches("wrestic ").to_string();
-    Ok(version)
-}
-fn get_latest_version(url: &str) -> std::io::Result<String> {
-    let output = Command::new("sh")
-        .arg("-c")
-        .arg(format!(
-            r#"curl -s "{url}" | grep tag_name | grep -Eo '[0-9.]+'"#
-        ))
-        .output()?;
-    let version_string = String::from_utf8_lossy(&output.stdout);
-    let version = version_string.trim().to_string();
-    Ok(version)
 }
