@@ -1,13 +1,13 @@
 [package]
 name = "wrestic"
-version = "0.8.4"
+version = "0.8.5"
 authors = ["alvaro17f"]
-description = "Restic wrapper in Rust"
+description = "Restic wrapper built in Rust"
 homepage = "https://github.com/alvaro17f/wrestic"
 repository = "https://github.com/alvaro17f/wrestic"
 license = "LGPL-3.0"
 edition = "2021"
-keywords = ["restic", "wrapper"]
+keywords = ["restic", "wrapper", "rust"]
 
 
 [dependencies]

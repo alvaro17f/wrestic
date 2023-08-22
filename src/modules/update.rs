@@ -12,14 +12,16 @@ pub fn update(noconfirm: bool) -> Result<()> {
     cprintln!("<c,u,s>UPDATER");
     println!();
 
-    if get_installed_version()? >= get_latest_version()? {
+    let url = "https://api.github.com/repos/alvaro17f/wrestic/releases/latest";
+
+    if get_installed_version()? >= get_latest_version(&url)? {
         cprintln!("<g,u>Wrestic is already up to date!\n");
         pause()?
     } else {
         cprintln!(
             "<y>Wrestic is outdated!\n<r>current: <k>{}<g>latest: <k>{}\n",
             get_installed_version()?,
-            get_latest_version()?
+            get_latest_version(&url)?
         );
 
         let pb = ProgressBar::new_spinner();
@@ -28,7 +30,7 @@ pub fn update(noconfirm: bool) -> Result<()> {
 
         let output = Command::new("sh")
         .arg("-c")
-        .arg(r#"curl -sL $(curl -s https://api.github.com/repos/alvaro17f/wrestic/releases/latest | grep browser_download_url | cut -d '"' -f 4) | sudo tar zxf - -C /usr/bin --overwrite"#)
+        .arg(format!(r#"curl -sL $(curl -s {url} | grep browser_download_url | cut -d '"' -f 4) | sudo tar zxf - -C /usr/bin --overwrite"#))
         .output()?;
 
         pb.finish_and_clear();
@@ -54,10 +56,12 @@ fn get_installed_version() -> std::io::Result<String> {
     let version = version_string.trim_start_matches("wrestic ").to_string();
     Ok(version)
 }
-fn get_latest_version() -> std::io::Result<String> {
+fn get_latest_version(url: &str) -> std::io::Result<String> {
     let output = Command::new("sh")
         .arg("-c")
-        .arg(r#"curl -s https://api.github.com/repos/alvaro17f/wrestic/releases/latest | grep tag_name | grep -Eo '[0-9.]+'"#)
+        .arg(format!(
+            r#"curl -s {url} | grep tag_name | grep -Eo '[0-9.]+'"#
+        ))
         .output()?;
     let version_string = String::from_utf8_lossy(&output.stdout);
     let version = version_string.trim().to_string();
