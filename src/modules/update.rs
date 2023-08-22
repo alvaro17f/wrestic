@@ -13,7 +13,7 @@ pub fn update(noconfirm: bool) -> Result<()> {
     println!();
 
     if get_installed_version()? >= get_latest_version()? {
-        cprintln!("<g>Wrestic is already up to date!");
+        cprintln!("<g,u>Wrestic is already up to date!\n");
         pause()?
     } else {
         cprintln!(
