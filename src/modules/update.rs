@@ -9,7 +9,7 @@ use std::{process::Command, time::Duration};
 
 pub fn update(noconfirm: bool) -> Result<()> {
     clear()?;
-    cprintln!("<C>UPDATER");
+    cprintln!("<G>UPDATER");
     println!();
 
     if get_installed_version()? >= get_latest_version()? {
