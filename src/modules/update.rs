@@ -3,7 +3,7 @@ use crate::{
     modules::selector::selector,
     utils::tools::{clear, pause},
 };
-use anyhow::{Context, Result};
+use anyhow::Result;
 use cmd_lib::run_cmd;
 use color_print::cprintln;
 use indicatif::ProgressBar;
@@ -19,28 +19,31 @@ pub fn update(noconfirm: bool) -> Result<()> {
         r#"curl -sL $(curl -s "{url}" | grep browser_download_url | cut -d '"' -f 4) | sudo tar zxf - -C /usr/bin --overwrite"#
     );
 
-    if get_installed_version()? >= get_latest_version(&url)? {
+    if get_installed_version()? >= get_latest_version(url)? {
         cprintln!("<g,u>Wrestic is already up to date!\n");
         pause()?
     } else {
         cprintln!(
             "<y>Wrestic is outdated!\n<r>current: <k>{}<g>latest: <k>{}\n",
             get_installed_version()?,
-            get_latest_version(&url)?
+            get_latest_version(url)?
         );
 
         let pb = ProgressBar::new_spinner();
         pb.enable_steady_tick(Duration::from_millis(120));
         pb.set_message("Updating wrestic...");
 
-        run_cmd!(
+        if run_cmd!(
             sh -c $command;
         )
-        .context(error!("failed fetching the latest version from wrestic."))?;
-
-        pb.finish_and_clear();
-
-        cprintln!("<g,u>Wrestic was successfully updated\n");
+        .is_err()
+        {
+            pb.finish_and_clear();
+            Err(error!("failed fetching the latest version from wrestic."))?;
+        } else {
+            pb.finish_and_clear();
+            cprintln!("<g,u>Wrestic was successfully updated\n");
+        }
 
         pause()?;
     }
