@@ -17,7 +17,8 @@ pub fn update(noconfirm: bool) -> Result<()> {
         pause()?
     } else {
         cprintln!(
-            "<y>Wrestic is outdated!\n <g>latest: <k>{}",
+            "<y>Wrestic is outdated!\n<r>current: <k>{}<g>latest: <k>{}\n",
+            get_installed_version()?,
             get_latest_version()?
         );
 
@@ -33,9 +34,10 @@ pub fn update(noconfirm: bool) -> Result<()> {
         pb.finish_and_clear();
 
         if output.status.success() {
-            cprintln!("<g>Wrestic updated successfully!");
+            cprintln!("<g,u>Wrestic updated successfully!\n");
         } else {
             cprintln!("<r>Command failed with status: <k>{}", output.status);
+            cprintln!("<k>{}", String::from_utf8_lossy(&output.stderr));
         }
         pause()?;
     }
