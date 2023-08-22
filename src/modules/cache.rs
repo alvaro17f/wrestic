@@ -9,7 +9,7 @@ use dialoguer::{theme::ColorfulTheme, Confirm};
 
 pub fn cache(noconfirm: bool) -> Result<()> {
     clear()?;
-    cprintln!("<G>CACHE");
+    cprintln!("<c,u,s>CACHE");
     println!();
     if noconfirm
         || Confirm::with_theme(&ColorfulTheme::default())

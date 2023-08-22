@@ -32,7 +32,7 @@ fn do_check(bucket: &str, repository: &str) -> Result<()> {
 
 pub fn check(settings: &Vec<Settings>, noconfirm: bool) -> Result<()> {
     clear()?;
-    cprintln!("<G>CHECK");
+    cprintln!("<c,u,s>CHECK");
     println!();
     let selection = if settings.len() > 1 {
         let selections: Vec<String> = settings.iter().map(|x| x.name.clone()).collect();

@@ -50,7 +50,7 @@ fn do_backup(bucket: &str, repository: &str, backup_folder: &str, keep_last: &st
 
 pub fn backup(settings: &Vec<Settings>, noconfirm: bool) -> Result<()> {
     clear()?;
-    cprintln!("<G>BACKUP");
+    cprintln!("<c,u,s>BACKUP");
     println!();
 
     if noconfirm {

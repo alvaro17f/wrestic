@@ -117,6 +117,7 @@ pub fn get_config() -> Result<Vec<Settings>> {
 
         settings.push(settings_struct);
     }
+    settings.sort_by(|a, b| a.name.cmp(&b.name));
 
     Ok(settings)
 }

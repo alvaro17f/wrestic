@@ -31,7 +31,7 @@ fn do_restore(
 
 pub fn restore(settings: &Vec<Settings>, noconfirm: bool) -> Result<()> {
     clear()?;
-    cprintln!("<G>RESTORE");
+    cprintln!("<c,u,s>RESTORE");
     println!();
     let selection = if settings.len() > 1 {
         let selections: Vec<String> = settings.iter().map(|x| x.name.clone()).collect();
