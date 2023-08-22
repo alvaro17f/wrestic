@@ -1,8 +1,10 @@
 use crate::{
+    macros::anyhow::error,
     modules::selector::selector,
     utils::tools::{clear, pause},
 };
-use anyhow::Result;
+use anyhow::{Context, Result};
+use cmd_lib::run_cmd;
 use color_print::cprintln;
 use indicatif::ProgressBar;
 use std::{process::Command, time::Duration};
@@ -13,6 +15,9 @@ pub fn update(noconfirm: bool) -> Result<()> {
     println!();
 
     let url = "https://api.github.com/repos/alvaro17f/wrestic/releases/latest";
+    let command = format!(
+        r#"curl -sL $(curl -s "{url}" | grep browser_download_url | cut -d '"' -f 4) | sudo tar zxf - -C /usr/bin --overwrite"#
+    );
 
     if get_installed_version()? >= get_latest_version(&url)? {
         cprintln!("<g,u>Wrestic is already up to date!\n");
@@ -28,19 +33,15 @@ pub fn update(noconfirm: bool) -> Result<()> {
         pb.enable_steady_tick(Duration::from_millis(120));
         pb.set_message("Updating wrestic...");
 
-        let output = Command::new("sh")
-        .arg("-c")
-        .arg(format!(r#"curl -sL $(curl -s {url} | grep browser_download_url | cut -d '"' -f 4) | sudo tar zxf - -C /usr/bin --overwrite"#))
-        .output()?;
+        run_cmd!(
+            sh -c $command;
+        )
+        .context(error!("failed fetching the latest version from wrestic."))?;
 
         pb.finish_and_clear();
 
-        if output.status.success() {
-            cprintln!("<g,u>Wrestic updated successfully!\n");
-        } else {
-            cprintln!("<r>Command failed with status: <k>{}", output.status);
-            cprintln!("<k>{}", String::from_utf8_lossy(&output.stderr));
-        }
+        cprintln!("<g,u>Wrestic was successfully updated\n");
+
         pause()?;
     }
 
@@ -60,7 +61,7 @@ fn get_latest_version(url: &str) -> std::io::Result<String> {
     let output = Command::new("sh")
         .arg("-c")
         .arg(format!(
-            r#"curl -s {url} | grep tag_name | grep -Eo '[0-9.]+'"#
+            r#"curl -s "{url}" | grep tag_name | grep -Eo '[0-9.]+'"#
         ))
         .output()?;
     let version_string = String::from_utf8_lossy(&output.stdout);
