@@ -1,10 +1,11 @@
-use anyhow::Result;
-
 use crate::macros::anyhow::error;
+use anyhow::Result;
+use nix::unistd::geteuid;
 
 pub fn root_checker() -> Result<()> {
-    if unsafe { libc::geteuid() } != 0 {
-        Err(error!("Please run as root"))?;
+    if geteuid().is_root() {
+        Ok(())
+    } else {
+        Err(error!("Please run as root"))?
     }
-    Ok(())
 }
