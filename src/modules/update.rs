@@ -3,27 +3,41 @@ use crate::{
     modules::selector::selector,
     utils::tools::{clear, pause},
 };
-use anyhow::Result;
+use anyhow::{Context, Result};
 use cmd_lib::run_cmd;
 use color_print::cprintln;
 use indicatif::ProgressBar;
-use std::{process::Command, time::Duration};
+use std::{env, process::Command, time::Duration};
+use which::which;
 
-fn get_installed_version() -> std::io::Result<String> {
-    let output = Command::new("wrestic").arg("--version").output()?;
-    let version_string = String::from_utf8_lossy(&output.stdout);
-    let version = version_string.trim_start_matches("wrestic ").to_string();
+fn get_current_shell() -> Result<String> {
+    let mut shell = env::var("SHELL").context(error!("Failed getting the current shell."))?;
+    if shell.is_empty() {
+        shell = "/bin/sh".to_string();
+    }
+    Ok(shell)
+}
+
+fn get_current_version() -> Result<String> {
+    let version = env!("CARGO_PKG_VERSION").to_string();
     Ok(version)
 }
-fn get_latest_version(url: &str) -> std::io::Result<String> {
-    let output = Command::new("sh")
+fn get_latest_version(url: &str) -> Result<String> {
+    let shell = get_current_shell()?;
+    let output = Command::new(shell)
         .arg("-c")
         .arg(format!(
             r#"curl -s "{url}" | grep tag_name | grep -Eo '[0-9.]+'"#
         ))
-        .output()?;
+        .output()
+        .context(error!("Failed fetching the latest version of Wrestic."))?;
     let version_string = String::from_utf8_lossy(&output.stdout);
     let version = version_string.trim().to_string();
+    if version.is_empty() {
+        Err(error!(
+            "Failed fetching the latest version of Wrestic. Try again later."
+        ))?;
+    }
     Ok(version)
 }
 
@@ -34,16 +48,16 @@ pub fn update(noconfirm: bool) -> Result<()> {
 
     let url = "https://api.github.com/repos/alvaro17f/wrestic/releases/latest";
     let command = format!(
-        r#"curl -sL $(curl -s "{url}" | grep browser_download_url | cut -d '"' -f 4) -o /tmp/wrestic.tar.gz && sudo tar zxf /tmp/wrestic.tar.gz -C /usr/bin --overwrite && sudo rm -rf /tmp/wrestic.tar.gz"#
+        r#"curl -sL $(curl -s "{url}" | grep browser_download_url | cut -d '"' -f 4) -o /tmp/wrestic.tar.gz"#
     );
 
-    if get_installed_version()? >= get_latest_version(url)? {
+    if get_current_version()? >= get_latest_version(url)? {
         cprintln!("<g,u>Wrestic is already up to date!\n");
         pause()?
     } else {
         cprintln!(
-            "<y>Wrestic is outdated!\n<r>current: <k>{}<g>latest: <k>{}\n",
-            get_installed_version()?,
+            "<y>Wrestic is outdated!\n<r>current: <k>{}\n<g>latest: <k>{}\n",
+            get_current_version()?,
             get_latest_version(url)?
         );
 
@@ -51,13 +65,26 @@ pub fn update(noconfirm: bool) -> Result<()> {
         pb.enable_steady_tick(Duration::from_millis(120));
         pb.set_message("Updating wrestic...");
 
+        let shell = get_current_shell()?;
+
         if run_cmd!(
-            sh -c $command;
+            $shell -c $command;
         )
         .is_err()
         {
             pb.finish_and_clear();
-            Err(error!("failed fetching the latest version from wrestic."))?;
+            Err(error!("Failed downloading the latest version of Wrestic."))?;
+        }
+
+        which("tar").context(error!("Package: tar - is not installed"))?;
+        if run_cmd!(
+            sudo tar zxf /tmp/wrestic.tar.gz -C /usr/bin --overwrite;
+            sudo rm -rf /tmp/wrestic.tar.gz;
+        )
+        .is_err()
+        {
+            pb.finish_and_clear();
+            Err(error!("Failed extracting wrestic into /usr/bin."))?;
         } else {
             pb.finish_and_clear();
             cprintln!("<g,u>Wrestic was successfully updated\n");
