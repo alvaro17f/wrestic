@@ -1,4 +1,4 @@
-use crate::macros::anyhow::error;
+use crate::utils::macros::error;
 use anyhow::{Context, Result};
 use config::Config;
 use std::{fs, path::PathBuf};

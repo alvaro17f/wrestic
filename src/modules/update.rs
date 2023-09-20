@@ -1,7 +1,10 @@
 use crate::{
-    macros::anyhow::error,
     modules::selector::selector,
-    utils::tools::{clear, pause},
+    utils::{
+        get_current_shell::get_current_shell,
+        macros::error,
+        tools::{clear, pause},
+    },
 };
 use anyhow::{Context, Result};
 use cmd_lib::run_cmd;
@@ -9,14 +12,6 @@ use color_print::cprintln;
 use indicatif::ProgressBar;
 use std::{env, process::Command, time::Duration};
 use which::which;
-
-fn get_current_shell() -> Result<String> {
-    let mut shell = env::var("SHELL").context(error!("Failed getting the current shell."))?;
-    if shell.is_empty() {
-        shell = "/bin/sh".to_string();
-    }
-    Ok(shell)
-}
 
 fn get_current_version() -> Result<String> {
     let version = env!("CARGO_PKG_VERSION").to_string();

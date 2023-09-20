@@ -1,6 +1,9 @@
 use crate::{
-    macros::anyhow::error,
-    utils::tools::{clear, pause},
+    utils::macros::error,
+    utils::{
+        get_current_shell::get_current_shell,
+        tools::{clear, pause},
+    },
 };
 use anyhow::Result;
 use cmd_lib::run_cmd;
@@ -12,7 +15,7 @@ use which::which;
 pub fn restic_checker() -> Result<()> {
     let url = "https://api.github.com/repos/restic/restic/releases/latest";
     let command = format!(
-        r#"curl -sL $(curl -s "{url}" | grep browser_download_url | grep linux_amd64 | cut -d '"' -f 4) -o /tmp/restic.bz2 && sudo bunzip2 /tmp/restic.bz2 && sudo chmod +x /tmp/restic && sudo mv -f /tmp/restic /usr/bin/restic"#
+        r#"curl -sL $(curl -s "{url}" | grep browser_download_url | grep linux_amd64 | cut -d '"' -f 4) -o /tmp/restic.bz2 && bunzip2 /tmp/restic.bz2 && chmod +x /tmp/restic && mv -f /tmp/restic /usr/bin/restic"#
     );
     match which("restic") {
         Ok(_) => Ok(()),
@@ -26,8 +29,9 @@ pub fn restic_checker() -> Result<()> {
                 .default(true)
                 .interact()?
             {
+                let shell = get_current_shell()?;
                 if run_cmd!(
-                    sh -c $command;
+                    $shell -c $command;
                 )
                 .is_err()
                 {

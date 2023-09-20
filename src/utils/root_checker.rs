@@ -1,4 +1,4 @@
-use crate::macros::anyhow::error;
+use crate::utils::macros::error;
 use anyhow::Result;
 use nix::unistd::geteuid;
 
