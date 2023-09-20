@@ -78,8 +78,8 @@ pub fn update(noconfirm: bool) -> Result<()> {
 
         which("tar").context(error!("Package: tar - is not installed"))?;
         if run_cmd!(
-            sudo tar -zxf /tmp/wrestic.tar.gz -C /usr/bin --overwrite;
-            sudo rm -rf /tmp/wrestic.tar.gz;
+            tar -zxf /tmp/wrestic.tar.gz -C /usr/bin --overwrite;
+            rm -rf /tmp/wrestic.tar.gz;
         )
         .is_err()
         {
