@@ -9,9 +9,17 @@ use crate::{
 use anyhow::{Context, Result};
 use cmd_lib::run_cmd;
 use color_print::cprintln;
+use flate2::read::GzDecoder;
 use indicatif::ProgressBar;
-use std::{env, process::Command, time::Duration};
-use which::which;
+use std::{
+    env::current_exe,
+    fs::{remove_file, File},
+    io::BufReader,
+    path::Path,
+    process::Command,
+    time::Duration,
+};
+use tar::Archive;
 
 fn get_current_version() -> Result<String> {
     let version = env!("CARGO_PKG_VERSION").to_string();
@@ -25,15 +33,25 @@ fn get_latest_version(url: &str) -> Result<String> {
             r#"curl -s "{url}" | grep tag_name | grep -Eo '[0-9.]+'"#
         ))
         .output()
-        .context(error!("Failed fetching the latest version of Wrestic."))?;
+        .context(error!("Failed fetching the latest version of wrestic."))?;
     let version_string = String::from_utf8_lossy(&output.stdout);
     let version = version_string.trim().to_string();
     if version.is_empty() {
         Err(error!(
-            "Failed fetching the latest version of Wrestic. Try again later."
+            "Failed fetching the latest version of wrestic. Try again later."
         ))?;
     }
     Ok(version)
+}
+
+fn extract_wrestic(file_path: &str, extract_path: &str) -> Result<()> {
+    let file = File::open(file_path)?;
+    let gz = GzDecoder::new(file);
+    let tar = BufReader::new(gz);
+    let mut archive = Archive::new(tar);
+    let extract_path_parent = Path::new(extract_path).parent().unwrap().to_owned();
+    archive.unpack(extract_path_parent)?;
+    Ok(())
 }
 
 pub fn update(noconfirm: bool) -> Result<()> {
@@ -41,9 +59,13 @@ pub fn update(noconfirm: bool) -> Result<()> {
     cprintln!("<c,u,s>UPDATER");
     println!();
 
+    let current_executable = &current_exe()?;
+    let bin_path = current_executable.to_str().unwrap();
+    let tmp_path = "/tmp/wrestic.tar.gz";
     let url = "https://api.github.com/repos/alvaro17f/wrestic/releases/latest";
+
     let command = format!(
-        r#"curl -sL $(curl -s "{url}" | grep browser_download_url | cut -d '"' -f 4) -o /tmp/wrestic.tar.gz"#
+        r#"curl -sL $(curl -s "{url}" | grep browser_download_url | cut -d '"' -f 4) -o {tmp_path}"#
     );
 
     if get_current_version()? >= get_latest_version(url)? {
@@ -68,18 +90,22 @@ pub fn update(noconfirm: bool) -> Result<()> {
         .is_err()
         {
             pb.finish_and_clear();
-            Err(error!("Failed downloading the latest version of Wrestic."))?;
+            Err(error!("Failed downloading the latest version of wrestic"))?;
         }
 
-        which("tar").context(error!("Package: tar - is not installed"))?;
-        if run_cmd!(
-            tar -zxf /tmp/wrestic.tar.gz -C /usr/bin --overwrite;
-            rm -rf /tmp/wrestic.tar.gz;
-        )
-        .is_err()
-        {
+        if remove_file(bin_path).is_err() {
             pb.finish_and_clear();
-            Err(error!("Failed extracting wrestic into /usr/bin."))?;
+            Err(error!("Failed removing the old wrestic version"))?;
+        }
+
+        if extract_wrestic(tmp_path, bin_path).is_err() {
+            pb.finish_and_clear();
+            Err(error!(format!("Failed extracting wrestic into {bin_path}")))?;
+        };
+
+        if remove_file(tmp_path).is_err() {
+            pb.finish_and_clear();
+            Err(error!("Failed removing tmp files"))?;
         } else {
             pb.finish_and_clear();
             cprintln!("<g,u>Wrestic was successfully updated\n");
