@@ -5,19 +5,39 @@
 [user]
 USER = "yourcomputerusername"
 
-[settings.your_remote_profile]
+#################################
+# BACKBLAZE B2 EXAMPLE PROFILE
+#################################
+[settings.backblaze_profile]
 BACKEND = "b2"
-RESTIC_PASSWORD = "yourresticrepopassword"
-REPOSITORY = "yourbucketname:yourrepository"
+RESTIC_PASSWORD = "your_backblaze_restic_repo_password"
+REPOSITORY = "your_backblaze_bucket_name:your_backblaze_repository"
 BACKUP_FOLDER = "/home/yourcomputerusername/backupthisfolder"
 RESTORE_FOLDER = "/home/yourcomputerusername/restoretothisfolder"
 KEEP_LAST = 10
 
-[settings.your_remote_profile.env]
-B2_ACCOUNT_ID = "yourbackblazeb2accountid"
-B2_ACCOUNT_KEY = "yourbackblazeb2accountkey"
+[settings.backblaze_profile.env]
+B2_ACCOUNT_ID = "my_application_key_id"
+B2_ACCOUNT_KEY = "my_application_key"
 
+#################################
+# AWS S3 EXAMPLE PROFILE
+#################################
+[settings.aws_profile]
+BACKEND = "s3"
+RESTIC_PASSWORD = "your_aws_restic_repo_password"
+REPOSITORY = "s3.amazonaws.com/bucket_name"
+BACKUP_FOLDER = "/home/yourcomputerusername/backupthisfolder"
+RESTORE_FOLDER = "/home/yourcomputerusername/restoretothisfolder"
+KEEP_LAST = 10
 
+[settings.aws_profile.env]
+AWS_ACCESS_KEY_ID = "my_access_key"
+AWS_SECRET_ACCESS_KEY = "my_secret_access_key"
+
+#################################
+# LOCAL EXAMPLE PROFILE
+#################################
 [settings.your_local_profile]
 BACKEND = "local"
 RESTIC_PASSWORD = "yourlocalresticrepopassword"
