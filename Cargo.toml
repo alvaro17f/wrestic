@@ -1,6 +1,6 @@
 [package]
 name = "wrestic"
-version = "0.9.3"
+version = "1.0.0"
 authors = ["alvaro17f"]
 description = "Restic wrapper built in Rust"
 homepage = "https://github.com/alvaro17f/wrestic"

@@ -105,14 +105,18 @@ fn main() -> Result<()> {
             };
 
             env::set_var("USER", &settings[selection].user);
-            env::set_var("B2_ACCOUNT_ID", &settings[selection].account_id);
             env::set_var("RESTIC_PASSWORD", &settings[selection].restic_password);
-            env::set_var("B2_ACCOUNT_ID", &settings[selection].account_id);
-            env::set_var("B2_ACCOUNT_KEY", &settings[selection].account_key);
+            for env in &settings[selection].env {
+                for (key, value) in env {
+                    env::set_var(key, value);
+                }
+            }
 
+            let backend = &settings[selection].backend;
             let bucket = &settings[selection].bucket;
             let repository = &settings[selection].repository;
-            repair(bucket, repository, true)?;
+
+            repair(backend, bucket, repository, true)?;
         }
         Some(Commands::Cache) => {
             cache(true)?;

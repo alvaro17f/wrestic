@@ -5,9 +5,8 @@
 [user]
 USER = "yourcomputerusername"
 
-[settings.yourcustomanduniqueid]
-B2_ACCOUNT_ID = "yourbackblazeb2accountid"
-B2_ACCOUNT_KEY = "yourbackblazeb2accountkey"
+[settings.your_remote_profile]
+BACKEND = "b2"
 RESTIC_PASSWORD = "yourresticrepopassword"
 BUCKET = "yourbucketname"
 REPOSITORY = "yourrepositoryname"
@@ -15,9 +14,13 @@ BACKUP_FOLDER = "/home/yourcomputerusername/backupthisfolder"
 RESTORE_FOLDER = "/home/yourcomputerusername/restoretothisfolder"
 KEEP_LAST = 10
 
-[settings.yourothercustomanduniqueid]
+[settings.your_remote_profile.env]
 B2_ACCOUNT_ID = "yourbackblazeb2accountid"
 B2_ACCOUNT_KEY = "yourbackblazeb2accountkey"
+
+
+[settings.your_local_profile]
+BACKEND = "local"
 RESTIC_PASSWORD = "youotherrresticrepopassword"
 BUCKET = "yourotherbucketname"
 REPOSITORY = "yourotherrepositoryname"

@@ -11,9 +11,9 @@ use color_print::{cformat, cprintln};
 use dialoguer::{theme::ColorfulTheme, Confirm, Select};
 use std::env;
 
-fn do_check(bucket: &str, repository: &str) -> Result<()> {
+fn do_check(backend: &str, bucket: &str, repository: &str) -> Result<()> {
     if run_cmd!(
-        restic -r b2:$bucket:$repository check;
+        restic -r $backend:$bucket:$repository check;
     )
     .is_err()
     {
@@ -23,7 +23,7 @@ fn do_check(bucket: &str, repository: &str) -> Result<()> {
             .default(true)
             .interact()?
         {
-            repair(bucket, repository, true)?;
+            repair(backend, bucket, repository, true)?;
             pause()?;
         }
     }
@@ -47,15 +47,18 @@ pub fn check(settings: &Vec<Settings>, noconfirm: bool) -> Result<()> {
     };
 
     env::set_var("USER", &settings[selection].user);
-    env::set_var("B2_ACCOUNT_ID", &settings[selection].account_id);
     env::set_var("RESTIC_PASSWORD", &settings[selection].restic_password);
-    env::set_var("B2_ACCOUNT_ID", &settings[selection].account_id);
-    env::set_var("B2_ACCOUNT_KEY", &settings[selection].account_key);
+    for env in &settings[selection].env {
+        for (key, value) in env {
+            env::set_var(key, value);
+        }
+    }
 
+    let backend = &settings[selection].backend;
     let bucket = &settings[selection].bucket;
     let repository = &settings[selection].repository;
 
-    do_check(bucket, repository)?;
+    do_check(backend, bucket, repository)?;
     pause()?;
 
     if !noconfirm {

@@ -1,21 +1,21 @@
 use crate::utils::macros::error;
 use anyhow::{Context, Result};
 use config::Config;
-use std::{fs, path::PathBuf};
+use std::{collections::HashMap, fs, path::PathBuf};
 
 #[derive(Debug, Clone)]
 #[allow(dead_code)]
 pub struct Settings {
     pub user: String,
+    pub backend: String,
     pub name: String,
     pub bucket: String,
     pub repository: String,
     pub restic_password: String,
-    pub account_id: String,
-    pub account_key: String,
     pub backup_folder: String,
     pub restore_folder: String,
     pub keep_last: String,
+    pub env: Option<HashMap<String, String>>,
 }
 
 pub fn get_config() -> Result<Vec<Settings>> {
@@ -67,6 +67,11 @@ pub fn get_config() -> Result<Vec<Settings>> {
             user: user.clone(),
             name: key.to_string().replace('\"', ""),
 
+            backend: deserialized_value
+                .get("BACKEND")
+                .context(error!("Failed to get the value of BACKEND for {key}"))?
+                .to_string()
+                .replace('\"', ""),
             bucket: deserialized_value
                 .get("BUCKET")
                 .context(error!("Failed to get the value of BUCKET for {key}"))?
@@ -81,18 +86,6 @@ pub fn get_config() -> Result<Vec<Settings>> {
                 .get("RESTIC_PASSWORD")
                 .context(error!(
                     "Failed to get the value of RESTIC_PASSWORD for {key}"
-                ))?
-                .to_string()
-                .replace('\"', ""),
-            account_id: deserialized_value
-                .get("B2_ACCOUNT_ID")
-                .context(error!("Failed to get the value of B2_ACCOUNT_ID for {key}"))?
-                .to_string()
-                .replace('\"', ""),
-            account_key: deserialized_value
-                .get("B2_ACCOUNT_KEY")
-                .context(error!(
-                    "Failed to get the value of B2_ACCOUNT_KEY for {key}"
                 ))?
                 .to_string()
                 .replace('\"', ""),
@@ -113,6 +106,13 @@ pub fn get_config() -> Result<Vec<Settings>> {
                 .context(error!("Failed to get the value of KEEP_LAST for {key}"))?
                 .to_string()
                 .replace('\"', ""),
+            env: deserialized_value.get("env").iter().next().map(|x| {
+                x.as_object()
+                    .unwrap()
+                    .iter()
+                    .map(|(k, v)| (k.to_string(), v.to_string().replace('\"', "")))
+                    .collect()
+            }),
         };
 
         settings.push(settings_struct);

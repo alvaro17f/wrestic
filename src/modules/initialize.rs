@@ -24,17 +24,20 @@ pub fn initialize(settings: &Vec<Settings>, noconfirm: bool) -> Result<()> {
         .interact()?
     {
         for conf in settings {
+            let backend = &conf.backend;
             let bucket = &conf.bucket;
             let repository = &conf.repository;
 
             env::set_var("USER", &conf.user);
-            env::set_var("B2_ACCOUNT_ID", &conf.account_id);
             env::set_var("RESTIC_PASSWORD", &conf.restic_password);
-            env::set_var("B2_ACCOUNT_ID", &conf.account_id);
-            env::set_var("B2_ACCOUNT_KEY", &conf.account_key);
+            for env in &conf.env {
+                for (key, value) in env {
+                    env::set_var(key, value);
+                }
+            }
 
             if run_cmd!(
-                restic -r b2:$bucket:$repository init;
+                restic -r $backend:$bucket:$repository init;
             )
             .is_err()
             {

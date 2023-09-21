@@ -13,13 +13,14 @@ use dialoguer::{theme::ColorfulTheme, Confirm, Select};
 use std::env;
 
 fn do_restore(
+    backend: &str,
     bucket: &str,
     repository: &str,
     restore_folder: &str,
     restore_snapshot: &str,
 ) -> Result<()> {
     if run_cmd!(
-        restic -r b2:$bucket:$repository --verbose --verbose restore $restore_snapshot --target $restore_folder;
+        restic -r $backend:$bucket:$repository --verbose --verbose restore $restore_snapshot --target $restore_folder;
     )
     .is_err()
     {
@@ -46,11 +47,14 @@ pub fn restore(settings: &Vec<Settings>, noconfirm: bool) -> Result<()> {
     };
 
     env::set_var("USER", &settings[selection].user);
-    env::set_var("B2_ACCOUNT_ID", &settings[selection].account_id);
     env::set_var("RESTIC_PASSWORD", &settings[selection].restic_password);
-    env::set_var("B2_ACCOUNT_ID", &settings[selection].account_id);
-    env::set_var("B2_ACCOUNT_KEY", &settings[selection].account_key);
+    for env in &settings[selection].env {
+        for (key, value) in env {
+            env::set_var(key, value);
+        }
+    }
 
+    let backend = &settings[selection].backend;
     let bucket = &settings[selection].bucket;
     let repository = &settings[selection].repository;
     let restore_folder = &settings[selection].restore_folder;
@@ -63,7 +67,13 @@ pub fn restore(settings: &Vec<Settings>, noconfirm: bool) -> Result<()> {
         .default(true)
         .interact()?
     {
-        do_restore(bucket, repository, restore_folder, &restore_snapshot)?;
+        do_restore(
+            backend,
+            bucket,
+            repository,
+            restore_folder,
+            &restore_snapshot,
+        )?;
         pause()?;
     }
     if !noconfirm {
