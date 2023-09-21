@@ -13,14 +13,14 @@ use dialoguer::{theme::ColorfulTheme, Select};
 use indicatif::ProgressBar;
 use std::process::Command;
 
-fn get_snapshots(backend: &str, bucket: &str, repository: &str) -> Result<()> {
+fn get_snapshots(backend: &str, repository: &str) -> Result<()> {
     let pb = ProgressBar::new_spinner();
     pb.enable_steady_tick(Duration::from_millis(120));
     pb.set_message("Loading snapshots...");
 
     let out = Command::new("restic")
         .arg("-r")
-        .arg(format!("{}:{}:{}", &backend, &bucket, &repository))
+        .arg(format!("{}:{}", &backend, &repository))
         .arg("--verbose")
         .arg("--verbose")
         .arg("snapshots")
@@ -58,10 +58,9 @@ pub fn snapshots(settings: &Vec<Settings>, noconfirm: bool) -> Result<()> {
     }
 
     let backend = &settings[selection].backend;
-    let bucket = &settings[selection].bucket;
     let repository = &settings[selection].repository;
 
-    get_snapshots(backend, bucket, repository)?;
+    get_snapshots(backend, repository)?;
     pause()?;
 
     if !noconfirm {

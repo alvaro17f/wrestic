@@ -38,9 +38,8 @@ pub fn forget(settings: &Vec<Settings>, noconfirm: bool) -> Result<()> {
         }
     }
     let backend = &settings[selection].backend;
-    let bucket = &settings[selection].bucket;
     let repository = &settings[selection].repository;
-    let delete_snapshots = snapshots_selector(bucket, repository)?;
+    let delete_snapshots = snapshots_selector(backend, repository)?;
 
     if Confirm::with_theme(&ColorfulTheme::default())
         .with_prompt(cformat!(
@@ -51,7 +50,7 @@ pub fn forget(settings: &Vec<Settings>, noconfirm: bool) -> Result<()> {
     {
         if run_cmd!(
 
-            restic -r $backend:$bucket:$repository forget $delete_snapshots;
+            restic -r $backend:$repository forget $delete_snapshots;
         )
         .is_err()
         {
@@ -61,9 +60,9 @@ pub fn forget(settings: &Vec<Settings>, noconfirm: bool) -> Result<()> {
                 .default(true)
                 .interact()?
             {
-                repair(backend, bucket, repository, true)?;
+                repair(backend, repository, true)?;
                 if run_cmd!(
-                    restic -r $backend:$bucket:$repository forget $delete_snapshots;
+                    restic -r $backend:$repository forget $delete_snapshots;
                 )
                 .is_err()
                 {

@@ -9,7 +9,6 @@ pub struct Settings {
     pub user: String,
     pub backend: String,
     pub name: String,
-    pub bucket: String,
     pub repository: String,
     pub restic_password: String,
     pub backup_folder: String,
@@ -70,11 +69,6 @@ pub fn get_config() -> Result<Vec<Settings>> {
             backend: deserialized_value
                 .get("BACKEND")
                 .context(error!("Failed to get the value of BACKEND for {key}"))?
-                .to_string()
-                .replace('\"', ""),
-            bucket: deserialized_value
-                .get("BUCKET")
-                .context(error!("Failed to get the value of BUCKET for {key}"))?
                 .to_string()
                 .replace('\"', ""),
             repository: deserialized_value

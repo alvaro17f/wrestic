@@ -77,10 +77,9 @@ pub fn selector() -> Result<()> {
             }
 
             let backend = &settings[selection].backend;
-            let bucket = &settings[selection].bucket;
             let repository = &settings[selection].repository;
 
-            repair(backend, bucket, repository, false)?;
+            repair(backend, repository, false)?;
         }
         "Cache" => {
             cache(false)?;

@@ -14,13 +14,12 @@ use std::env;
 
 fn do_restore(
     backend: &str,
-    bucket: &str,
     repository: &str,
     restore_folder: &str,
     restore_snapshot: &str,
 ) -> Result<()> {
     if run_cmd!(
-        restic -r $backend:$bucket:$repository --verbose --verbose restore $restore_snapshot --target $restore_folder;
+        restic -r $backend:$repository --verbose --verbose restore $restore_snapshot --target $restore_folder;
     )
     .is_err()
     {
@@ -55,10 +54,9 @@ pub fn restore(settings: &Vec<Settings>, noconfirm: bool) -> Result<()> {
     }
 
     let backend = &settings[selection].backend;
-    let bucket = &settings[selection].bucket;
     let repository = &settings[selection].repository;
     let restore_folder = &settings[selection].restore_folder;
-    let restore_snapshot = snapshots_selector(bucket, repository)?;
+    let restore_snapshot = snapshots_selector(backend, repository)?;
 
     if Confirm::with_theme(&ColorfulTheme::default())
         .with_prompt(cformat!(
@@ -67,13 +65,7 @@ pub fn restore(settings: &Vec<Settings>, noconfirm: bool) -> Result<()> {
         .default(true)
         .interact()?
     {
-        do_restore(
-            backend,
-            bucket,
-            repository,
-            restore_folder,
-            &restore_snapshot,
-        )?;
+        do_restore(backend, repository, restore_folder, &restore_snapshot)?;
         pause()?;
     }
     if !noconfirm {

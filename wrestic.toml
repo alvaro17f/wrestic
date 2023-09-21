@@ -8,8 +8,7 @@ USER = "yourcomputerusername"
 [settings.your_remote_profile]
 BACKEND = "b2"
 RESTIC_PASSWORD = "yourresticrepopassword"
-BUCKET = "yourbucketname"
-REPOSITORY = "yourrepositoryname"
+REPOSITORY = "yourbucketname:yourrepository"
 BACKUP_FOLDER = "/home/yourcomputerusername/backupthisfolder"
 RESTORE_FOLDER = "/home/yourcomputerusername/restoretothisfolder"
 KEEP_LAST = 10
@@ -21,9 +20,8 @@ B2_ACCOUNT_KEY = "yourbackblazeb2accountkey"
 
 [settings.your_local_profile]
 BACKEND = "local"
-RESTIC_PASSWORD = "youotherrresticrepopassword"
-BUCKET = "yourotherbucketname"
-REPOSITORY = "yourotherrepositoryname"
+RESTIC_PASSWORD = "yourlocalresticrepopassword"
+REPOSITORY = "yourlocalrepository"
 BACKUP_FOLDER = "/home/yourcomputerusername/backupthisotherfolder"
 RESTORE_FOLDER = "/home/yourcomputerusername/restoretothisotherfolder"
 KEEP_LAST = 8

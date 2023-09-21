@@ -11,9 +11,9 @@ use color_print::{cformat, cprintln};
 use dialoguer::{theme::ColorfulTheme, Confirm, Select};
 use std::env;
 
-fn do_check(backend: &str, bucket: &str, repository: &str) -> Result<()> {
+fn do_check(backend: &str, repository: &str) -> Result<()> {
     if run_cmd!(
-        restic -r $backend:$bucket:$repository check;
+        restic -r $backend:$repository check;
     )
     .is_err()
     {
@@ -23,7 +23,7 @@ fn do_check(backend: &str, bucket: &str, repository: &str) -> Result<()> {
             .default(true)
             .interact()?
         {
-            repair(backend, bucket, repository, true)?;
+            repair(backend, repository, true)?;
             pause()?;
         }
     }
@@ -55,10 +55,9 @@ pub fn check(settings: &Vec<Settings>, noconfirm: bool) -> Result<()> {
     }
 
     let backend = &settings[selection].backend;
-    let bucket = &settings[selection].bucket;
     let repository = &settings[selection].repository;
 
-    do_check(backend, bucket, repository)?;
+    do_check(backend, repository)?;
     pause()?;
 
     if !noconfirm {

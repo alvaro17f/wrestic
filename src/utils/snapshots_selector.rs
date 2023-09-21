@@ -5,13 +5,13 @@ use indicatif::ProgressBar;
 use regex::Regex;
 use std::{process::Command, time::Duration};
 
-pub fn snapshots_selector(bucket: &str, repository: &str) -> Result<String> {
+pub fn snapshots_selector(backend: &str, repository: &str) -> Result<String> {
     let pb = ProgressBar::new_spinner();
     pb.enable_steady_tick(Duration::from_millis(120));
     pb.set_message("Loading snapshots...");
     let restic = Command::new("restic")
         .arg("-r")
-        .arg(format!("b2:{}:{}", bucket, repository))
+        .arg(format!("{}:{}", backend, repository))
         .arg("--verbose")
         .arg("--verbose")
         .arg("snapshots")

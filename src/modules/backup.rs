@@ -11,15 +11,9 @@ use color_print::{cformat, cprintln};
 use dialoguer::{theme::ColorfulTheme, Confirm, Select};
 use std::env;
 
-fn do_backup(
-    backend: &str,
-    bucket: &str,
-    repository: &str,
-    backup_folder: &str,
-    keep_last: &str,
-) -> Result<()> {
+fn do_backup(backend: &str, repository: &str, backup_folder: &str, keep_last: &str) -> Result<()> {
     if run_cmd!(
-        restic -r $backend:$bucket:$repository --verbose --verbose backup $backup_folder;
+        restic -r $backend:$repository --verbose --verbose backup $backup_folder;
     )
     .is_err()
     {
@@ -27,7 +21,7 @@ fn do_backup(
     }
 
     if run_cmd!(
-        restic -r $backend:$bucket:$repository --verbose --verbose forget --keep-last $keep_last;
+        restic -r $backend:$repository --verbose --verbose forget --keep-last $keep_last;
     )
     .is_err()
     {
@@ -37,10 +31,10 @@ fn do_backup(
             .default(true)
             .interact()?
         {
-            repair(backend, bucket, repository, true)?;
+            repair(backend, repository, true)?;
 
             if run_cmd!(
-                restic -r $backend:$bucket:$repository --verbose --verbose forget --keep-last $keep_last;
+                restic -r $backend:$repository --verbose --verbose forget --keep-last $keep_last;
             )
             .is_err()
             {
@@ -62,7 +56,6 @@ pub fn backup(settings: &Vec<Settings>, noconfirm: bool) -> Result<()> {
     if noconfirm {
         for conf in settings {
             let backend = &conf.backend;
-            let bucket = &conf.bucket;
             let repository = &conf.repository;
             let keep_last = &conf.keep_last;
             let backup_folder = &conf.backup_folder;
@@ -75,7 +68,7 @@ pub fn backup(settings: &Vec<Settings>, noconfirm: bool) -> Result<()> {
                 }
             }
 
-            do_backup(backend, bucket, repository, backup_folder, keep_last)?;
+            do_backup(backend, repository, backup_folder, keep_last)?;
         }
     } else {
         let selection = if settings.len() > 1 {
@@ -92,7 +85,6 @@ pub fn backup(settings: &Vec<Settings>, noconfirm: bool) -> Result<()> {
 
         let name = &settings[selection].name;
         let backend = &settings[selection].backend;
-        let bucket = &settings[selection].bucket;
         let repository = &settings[selection].repository;
         let keep_last = &settings[selection].keep_last;
         let backup_folder = &settings[selection].backup_folder;
@@ -111,7 +103,7 @@ pub fn backup(settings: &Vec<Settings>, noconfirm: bool) -> Result<()> {
             .default(true)
             .interact()?
         {
-            do_backup(backend, bucket, repository, backup_folder, keep_last)?;
+            do_backup(backend, repository, backup_folder, keep_last)?;
             pause()?;
         }
         if !noconfirm {

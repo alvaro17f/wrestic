@@ -113,10 +113,9 @@ fn main() -> Result<()> {
             }
 
             let backend = &settings[selection].backend;
-            let bucket = &settings[selection].bucket;
             let repository = &settings[selection].repository;
 
-            repair(backend, bucket, repository, true)?;
+            repair(backend, repository, true)?;
         }
         Some(Commands::Cache) => {
             cache(true)?;

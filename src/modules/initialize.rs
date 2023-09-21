@@ -25,7 +25,6 @@ pub fn initialize(settings: &Vec<Settings>, noconfirm: bool) -> Result<()> {
     {
         for conf in settings {
             let backend = &conf.backend;
-            let bucket = &conf.bucket;
             let repository = &conf.repository;
 
             env::set_var("USER", &conf.user);
@@ -37,13 +36,11 @@ pub fn initialize(settings: &Vec<Settings>, noconfirm: bool) -> Result<()> {
             }
 
             if run_cmd!(
-                restic -r $backend:$bucket:$repository init;
+                restic -r $backend:$repository init;
             )
             .is_err()
             {
-                cprintln!(
-                    "<g>Repository: <c>{repository}</c> already exists in bucket: <c>{bucket}</c></g>"
-                );
+                cprintln!("<g>Repository: <c>{repository}</c> already exists</g>");
             }
         }
         pause()?;
