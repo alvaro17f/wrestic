@@ -42,11 +42,11 @@ sudo cp target/release/wrestic /usr/bin
 
 ## CONFIGURATION
 
-Simply copy `wrestic.toml` to `/home/$USER/.config/wrestic/wrestic.toml` and modify the content for your needs.
+Copy `wrestic.toml` to `/home/$USER/.config/wrestic/wrestic.toml` and modify the content for your needs.
 
 ## USAGE
 
-simply run `sudo wrestic`.
+Simply run `sudo wrestic`.
 
 ```sh
 $ wrestic help
