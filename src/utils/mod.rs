@@ -1,3 +1,4 @@
+pub mod completions;
 pub mod get_config;
 pub mod get_current_shell;
 pub mod macros;

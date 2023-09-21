@@ -1,28 +1,35 @@
 mod modules;
 mod utils;
 
-use crate::utils::tools::clear;
+use crate::utils::{completions::set_completions, tools::clear};
 use anyhow::Result;
-use clap::{Parser, Subcommand};
+use clap::{CommandFactory, Parser, Subcommand};
+use clap_complete::Shell;
 use color_print::{cformat, cprintln};
 use dialoguer::{theme::ColorfulTheme, Select};
 use modules::{
     backup::backup, cache::cache, check::check, forget::forget, initialize::initialize,
     repair::repair, restore::restore, selector::selector, snapshots::snapshots, update::update,
 };
-use std::env;
-use utils::{get_config::get_config, restic_checker::restic_checker, root_checker::root_checker};
+use std::{env, process::exit};
+use utils::{
+    completions::print_completions, get_config::get_config, restic_checker::restic_checker,
+    root_checker::root_checker,
+};
 
-#[derive(Parser)]
+#[derive(Parser, Debug, PartialEq)]
 #[command(author, version, about, long_about = None)]
 struct Cli {
+    // If provided, generate completions for given shell
+    #[arg(long = "generate", value_enum)]
+    generator: Option<Shell>,
     /// List of available commands
     #[command(subcommand)]
-    command: Option<Command>,
+    commands: Option<Commands>,
 }
 
-#[derive(Subcommand)]
-enum Command {
+#[derive(Subcommand, Debug, PartialEq)]
+enum Commands {
     /// Make a backup of all your repositories
     Backup,
     /// Restore a snapshot
@@ -50,26 +57,38 @@ fn main() -> Result<()> {
     let settings = get_config()?;
 
     let cli = Cli::parse();
-    match &cli.command {
-        Some(Command::Backup) => {
+    if let Some(generator) = cli.generator {
+        let mut cmd = Cli::command();
+        if generator == Shell::Zsh || generator == Shell::Bash {
+            set_completions(generator, &mut cmd);
+            cprintln!("<c>{}</c> <y>completions are set", generator);
+            exit(0)
+        } else {
+            print_completions(generator, &mut cmd);
+            exit(0)
+        }
+    }
+
+    match &cli.commands {
+        Some(Commands::Backup) => {
             backup(&settings, true)?;
         }
-        Some(Command::Restore) => {
+        Some(Commands::Restore) => {
             restore(&settings, true)?;
         }
-        Some(Command::Snapshots) => {
+        Some(Commands::Snapshots) => {
             snapshots(&settings, true)?;
         }
-        Some(Command::Forget) => {
+        Some(Commands::Forget) => {
             forget(&settings, true)?;
         }
-        Some(Command::Init) => {
+        Some(Commands::Init) => {
             initialize(&settings, true)?;
         }
-        Some(Command::Check) => {
+        Some(Commands::Check) => {
             check(&settings, true)?;
         }
-        Some(Command::Repair) => {
+        Some(Commands::Repair) => {
             clear()?;
             cprintln!("<c,u,s>REPAIR");
             println!();
@@ -95,10 +114,10 @@ fn main() -> Result<()> {
             let repository = &settings[selection].repository;
             repair(bucket, repository, true)?;
         }
-        Some(Command::Cache) => {
+        Some(Commands::Cache) => {
             cache(true)?;
         }
-        Some(Command::Update) => {
+        Some(Commands::Update) => {
             update(true)?;
         }
         None => {

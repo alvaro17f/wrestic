@@ -16,6 +16,7 @@ Wrestic is a backup tool built in Rust that provides a wrapper around Restic, a 
     - [BUILD FROM SOURCE](#build-from-source)
   - [CONFIGURATION](#configuration)
   - [USAGE](#usage)
+  - [COMPLETIONS](#completions)
 
 
 
@@ -50,9 +51,9 @@ simply run `sudo wrestic`.
 ```sh
 $ wrestic help
 
-Restic wrapper in Rust
+Restic wrapper built in Rust
 
-Usage: wrestic [COMMAND]
+Usage: wrestic [OPTIONS] [COMMAND]
 
 Commands:
   backup     Make a backup of all your repositories
@@ -67,7 +68,12 @@ Commands:
   help       Print this message or the help of the given subcommand(s)
 
 Options:
-  -h, --help     Print help
-  -V, --version  Print version
+      --generate <GENERATOR>  [possible values: bash, elvish, fish, powershell, zsh]
+  -h, --help                  Print help
+  -V, --version               Print version
 
 ```
+
+## COMPLETIONS
+
+To get `<TAB>` completions run `sudo wrestic --generate <your shell>`
