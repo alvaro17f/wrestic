@@ -86,4 +86,6 @@ Options:
 
 ## COMPLETIONS
 
+> if your shell is `bash` you'll also need the `bash-completion` package installed.
+
 To get `<TAB>` completions run `sudo wrestic --generate <your shell>`
