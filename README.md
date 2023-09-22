@@ -6,19 +6,17 @@
 
 Wrestic is a backup tool built in Rust that provides a wrapper around Restic, a popular backup program. With Wrestic, you can easily configure and run backups of your files and directories, and take advantage of Restic's powerful features such as deduplication, encryption, and compression. Whether you need to back up your personal files or your organization's data, Wrestic can help you automate the process and ensure your data is safe and secure.
 
-Wrestic has support for all the backends that restic suports, like:
+Wrestic has support for all the restic backends, including:
 
-- LOCAL
-- SFTP
-- REST
-- AMAZON S3
-- AZURE
-- BACKBLAZE B2
-- WASABI
-- MINIO
-- GOOGLE CLOUD STORAGE
-- OPENSTACK SWIFT
-- ALIBABA CLOUD OSS
+> - LOCAL
+> - SFTP
+> - REST
+> - AMAZON S3
+> - AZURE
+> - BACKBLAZE B2
+> - WASABI
+> - MINIO
+> - GOOGLE CLOUD STORAGE
 
 ## TABLE OF CONTENTS[![](https://raw.githubusercontent.com/aregtech/areg-sdk/master/docs/img/pin.svg)](#table-of-contents)
 - [WRESTIC](#wrestic)
