@@ -3,7 +3,7 @@
 #  and password will be set to the one you provided in RESTIC_PASSWORD
 
 [user]
-USER = "yourcomputerusername"
+USER = "username"
 
 #################################
 # BACKBLAZE B2 EXAMPLE PROFILE
@@ -12,13 +12,13 @@ USER = "yourcomputerusername"
 BACKEND = "b2"
 RESTIC_PASSWORD = "your_backblaze_restic_repo_password"
 REPOSITORY = "your_backblaze_bucket_name:your_backblaze_repository"
-BACKUP_FOLDER = "/home/yourcomputerusername/backupthisfolder"
-RESTORE_FOLDER = "/home/yourcomputerusername/restoretothisfolder"
+BACKUP_FOLDER = "/home/username/backup_this_folder"
+RESTORE_FOLDER = "/home/username/restore_to_this_folder"
 KEEP_LAST = 10
 
 [settings.backblaze_profile.env]
-B2_ACCOUNT_ID = "my_application_key_id"
-B2_ACCOUNT_KEY = "my_application_key"
+B2_ACCOUNT_ID = "backblaze_application_key_id"
+B2_ACCOUNT_KEY = "backblaze_application_key"
 
 #################################
 # AWS S3 EXAMPLE PROFILE
@@ -27,21 +27,97 @@ B2_ACCOUNT_KEY = "my_application_key"
 BACKEND = "s3"
 RESTIC_PASSWORD = "your_aws_restic_repo_password"
 REPOSITORY = "s3.amazonaws.com/bucket_name"
-BACKUP_FOLDER = "/home/yourcomputerusername/backupthisfolder"
-RESTORE_FOLDER = "/home/yourcomputerusername/restoretothisfolder"
+BACKUP_FOLDER = "/home/username/backup_this_folder"
+RESTORE_FOLDER = "/home/username/restore_to_this_folder"
 KEEP_LAST = 10
 
 [settings.aws_profile.env]
-AWS_ACCESS_KEY_ID = "my_access_key"
-AWS_SECRET_ACCESS_KEY = "my_secret_access_key"
+AWS_ACCESS_KEY_ID = "aws_access_key"
+AWS_SECRET_ACCESS_KEY = "aws_secret_access_key"
+
+#################################
+# GOOGLE CLOUD STORAGE EXAMPLE PROFILE
+#################################
+[settings.google_cloud_storage_profile]
+BACKEND = "gs"
+RESTIC_PASSWORD = "your_google_cloud_storage_restic_repo_password"
+REPOSITORY = "your_bucket_name:/path/to/your/repo"
+BACKUP_FOLDER = "/home/username/backup_this_folder"
+RESTORE_FOLDER = "/home/username/restore_to_this_folder"
+KEEP_LAST = 10
+
+[settings.google_cloud_storage_profile.env]
+# you can use the following:
+GOOGLE_PROJECT_ID = "google_cloud_storage_project_id"
+GOOGLE_APPLICATION_CREDENTIALS = "$HOME/.config/gs-secret-restic-key.json"
+# or you can use GOOGLE_ACCESS_TOKEN instead:
+GOOGLE_ACCESS_TOKEN = "ya29.a0AfH6SMC78..."
+
+#################################
+# AZURE EXAMPLE PROFILE
+#################################
+[settings.azure_profile]
+BACKEND = "azure"
+RESTIC_PASSWORD = "your_azure_restic_repo_password"
+REPOSITORY = "your_bucket_name:/path/to/your/repo"
+BACKUP_FOLDER = "/home/username/backup_this_folder"
+RESTORE_FOLDER = "/home/username/restore_to_this_folder"
+KEEP_LAST = 10
+
+[settings.azure_profile.env]
+AZURE_ACCOUNT_NAME = "azure_account_name"
+# for autenthication export one of the following:
+AZURE_ACCOUNT_KEY = "azure_secret_key" # for storage account key
+AZURE_ACCOUNT_SAS = "azure_sas_token"  # for sas
+
+#################################
+# MINIO EXAMPLE PROFILE
+#################################
+[settings.minio_profile]
+BACKEND = "s3"
+RESTIC_PASSWORD = "your_minio_restic_repo_password"
+REPOSITORY = "http://localhost:9000/repo"
+BACKUP_FOLDER = "/home/username/backup_this_folder"
+RESTORE_FOLDER = "/home/username/restore_to_this_folder"
+KEEP_LAST = 10
+
+[settings.minio_profile.env]
+AWS_ACCESS_KEY_ID = "minio_access_key"
+AWS_SECRET_ACCESS_KEY = "minio_secret_access_key"
+
+#################################
+# WASABI EXAMPLE PROFILE
+#################################
+[settings.wasabi_profile]
+BACKEND = "s3"
+RESTIC_PASSWORD = "your_aws_restic_repo_password"
+REPOSITORY = "https://wasabi_service_url/wasabi_bucket_name"
+BACKUP_FOLDER = "/home/username/backup_this_folder"
+RESTORE_FOLDER = "/home/username/restore_to_this_folder"
+KEEP_LAST = 10
+
+[settings.wasabi_profile.env]
+AWS_ACCESS_KEY_ID = "wasabi_access_key"
+AWS_SECRET_ACCESS_KEY = "wasabi_secret_access_key"
 
 #################################
 # LOCAL EXAMPLE PROFILE
 #################################
-[settings.your_local_profile]
+[settings.local_profile]
 BACKEND = "local"
-RESTIC_PASSWORD = "yourlocalresticrepopassword"
-REPOSITORY = "yourlocalrepository"
-BACKUP_FOLDER = "/home/yourcomputerusername/backupthisotherfolder"
-RESTORE_FOLDER = "/home/yourcomputerusername/restoretothisotherfolder"
+RESTIC_PASSWORD = "your_local_restic_repo_password"
+REPOSITORY = "/path/to/your/local/repo"
+BACKUP_FOLDER = "/home/username/backup_this_folder"
+RESTORE_FOLDER = "/home/username/restore_to_this_folder"
+KEEP_LAST = 8
+
+#################################
+# SFTP EXAMPLE PROFILE
+#################################
+[settings.sftp_profile]
+BACKEND = "sftp"
+RESTIC_PASSWORD = "your_sftp_restic_repo_password"
+REPOSITORY = "user@host:/path/to/repo"
+BACKUP_FOLDER = "/home/username/backup_this_folder"
+RESTORE_FOLDER = "/home/username/restore_to_this_folder"
 KEEP_LAST = 8
