@@ -21,7 +21,7 @@ pub fn forget(settings: &Vec<Settings>, noconfirm: bool) -> Result<()> {
     let selection = if settings.len() > 1 {
         let selections: Vec<String> = settings.iter().map(|x| x.name.clone()).collect();
         Select::with_theme(&ColorfulTheme::default())
-            .with_prompt(cformat!("<y>Where do you want to perform a repair?"))
+            .with_prompt(cformat!("<y>What snapshot do you want to delete?"))
             .default(0)
             .max_length(10)
             .items(&selections[..])
