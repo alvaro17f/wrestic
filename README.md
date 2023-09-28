@@ -2,7 +2,6 @@
 
 <div align="middle">
   <img src="misc/wr_light.svg" height="350" />
-  <img src="misc/wrestic.png" height="350" /> 
 </div>
 
 :star: Star me up!
@@ -58,6 +57,10 @@ sudo cp target/release/wrestic /usr/bin
 Copy `wrestic.toml` to `/home/$USER/.config/wrestic/wrestic.toml` and modify the content for your needs.
 
 ## USAGE
+
+<div align="middle">
+  <img src="misc/wrestic.png" height="350" /> 
+</div>
 
 Simply run `sudo wrestic`.
 
