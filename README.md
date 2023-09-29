@@ -1,7 +1,8 @@
 # WRESTIC
 
 <div align="middle">
-  <img src="misc/wr_light.svg" height="350" />
+  <img src="misc/wr_light.svg#gh-dark-mode-only" height="350" />
+  <img src="misc/wr_dark.svg#gh-light-mode-only" height="350" />
 </div>
 
 :star: Star me up!
