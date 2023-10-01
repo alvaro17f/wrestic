@@ -8,7 +8,7 @@ use clap_complete::Shell;
 use color_print::{cformat, cprintln};
 use dialoguer::{theme::ColorfulTheme, Select};
 use modules::{
-    backup::backup, cache::cache, check::check, forget::forget, initialize::initialize,
+    backup::backup, cache::cache, check::check, delete::delete, initialize::initialize,
     repair::repair, restore::restore, selector::selector, snapshots::snapshots, update::update,
 };
 use std::{env, process::exit};
@@ -37,7 +37,7 @@ enum Commands {
     /// List snapshots
     Snapshots,
     /// Delete a snapshot
-    Forget,
+    Delete,
     /// Initialize all of your repositories
     Init,
     /// Check repository health
@@ -77,8 +77,8 @@ fn main() -> Result<()> {
         Some(Commands::Snapshots) => {
             snapshots(true)?;
         }
-        Some(Commands::Forget) => {
-            forget(true)?;
+        Some(Commands::Delete) => {
+            delete(true)?;
         }
         Some(Commands::Init) => {
             initialize(true)?;

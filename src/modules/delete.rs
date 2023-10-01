@@ -14,7 +14,7 @@ use color_print::{cformat, cprintln};
 use dialoguer::{theme::ColorfulTheme, Confirm, Select};
 use std::env;
 
-pub fn forget(noconfirm: bool) -> Result<()> {
+pub fn delete(noconfirm: bool) -> Result<()> {
     let settings = get_config()?;
     clear()?;
     cprintln!("<c,u,s>DELETE");

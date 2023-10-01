@@ -76,7 +76,7 @@ Commands:
   backup     Make a backup of all your repositories
   restore    Restore a snapshot
   snapshots  List snapshots
-  forget     Delete a snapshot
+  delete     Delete a snapshot
   init       Initialize all of your repositories
   check      Check repository health
   repair     Fix any issue

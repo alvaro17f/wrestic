@@ -25,7 +25,7 @@ fn do_backup(backend: &str, repository: &str, backup_folder: &str, keep_last: &s
     )
     .is_err()
     {
-        cprintln!("<r>Failed to forget keeping last {keep_last} snapshots.");
+        cprintln!("<r>Failed to delete keeping last {keep_last} snapshots.");
         if Confirm::with_theme(&ColorfulTheme::default())
             .with_prompt(cformat!("<y>Do you want to repair? (Y/n):"))
             .default(true)
@@ -39,7 +39,7 @@ fn do_backup(backend: &str, repository: &str, backup_folder: &str, keep_last: &s
             .is_err()
             {
                 cprintln!(
-                    "<r>Houston, we have a problem! Failed to forget keeping last {keep_last} snapshots AGAIN."
+                    "<r>Houston, we have a problem! Failed to delete keeping last {keep_last} snapshots AGAIN."
             )
             }
         }

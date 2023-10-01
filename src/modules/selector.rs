@@ -1,6 +1,6 @@
 use crate::{
     modules::{
-        backup::backup, cache::cache, check::check, forget::forget, initialize::initialize,
+        backup::backup, cache::cache, check::check, delete::delete, initialize::initialize,
         repair::repair, restore::restore, snapshots::snapshots, update::update,
     },
     utils::{get_config::get_config, tools::clear},
@@ -17,7 +17,7 @@ pub fn selector() -> Result<()> {
         "Backup",
         "Restore",
         "Snapshots",
-        "Forget",
+        "Delete",
         "Initialize",
         "Check",
         "Repair",
@@ -42,8 +42,8 @@ pub fn selector() -> Result<()> {
         "Snapshots" => {
             snapshots(false)?;
         }
-        "Forget" => {
-            forget(false)?;
+        "Delete" => {
+            delete(false)?;
         }
         "Initialize" => {
             initialize(false)?;
