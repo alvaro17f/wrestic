@@ -45,14 +45,12 @@ pub fn get_config() -> Result<Vec<Settings>> {
         ))
         .build()?;
 
-    let user_table = config.get_table("user")?;
-
-    let user = user_table
-        .clone()
-        .get_key_value("USER")
+    let user = find_config_file()
         .unwrap()
-        .to_owned()
-        .1
+        .iter()
+        .nth(2)
+        .and_then(|f| f.to_str())
+        .unwrap_or_default()
         .to_string();
 
     let settings_table = config.get_table("settings")?;
@@ -68,36 +66,44 @@ pub fn get_config() -> Result<Vec<Settings>> {
 
             backend: deserialized_value
                 .get("BACKEND")
-                .context(error!("Failed to get the value of BACKEND for {key}"))?
+                .context(error!(format!(
+                    "Failed to get the value of BACKEND for {key}"
+                )))?
                 .to_string()
                 .replace('\"', ""),
             repository: deserialized_value
                 .get("REPOSITORY")
-                .context(error!("Failed to get the value of REPOSITORY for {key}"))?
+                .context(error!(format!(
+                    "Failed to get the value of REPOSITORY for {key}"
+                )))?
                 .to_string()
                 .replace('\"', ""),
             restic_password: deserialized_value
                 .get("RESTIC_PASSWORD")
-                .context(error!(
+                .context(error!(format!(
                     "Failed to get the value of RESTIC_PASSWORD for {key}"
-                ))?
+                )))?
                 .to_string()
                 .replace('\"', ""),
             backup_folder: deserialized_value
                 .get("BACKUP_FOLDER")
-                .context(error!("Failed to get the value of BACKUP_FOLER for {key}"))?
+                .context(error!(format!(
+                    "Failed to get the value of BACKUP_FOLER for {key}"
+                )))?
                 .to_string()
                 .replace('\"', ""),
             restore_folder: deserialized_value
                 .get("RESTORE_FOLDER")
-                .context(error!(
+                .context(error!(format!(
                     "Failed to get the value of RESTORE_FOLDER for {key}"
-                ))?
+                )))?
                 .to_string()
                 .replace('\"', ""),
             keep_last: deserialized_value
                 .get("KEEP_LAST")
-                .context(error!("Failed to get the value of KEEP_LAST for {key}"))?
+                .context(error!(format!(
+                    "Failed to get the value of KEEP_LAST for {key}"
+                )))?
                 .to_string()
                 .replace('\"', ""),
             env: deserialized_value.get("env").iter().next().map(|x| {

@@ -2,9 +2,6 @@
 #  and remember, if your repository doesn't exist, it will be created
 #  and password will be set to the one you provided in RESTIC_PASSWORD
 
-[user]
-USER = "username"
-
 #################################
 # BACKBLAZE B2 EXAMPLE PROFILE
 #################################
