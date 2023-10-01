@@ -17,6 +17,7 @@ fn do_restore(
     repository: &str,
     restore_folder: &str,
     restore_snapshot: &str,
+    user: &str,
 ) -> Result<()> {
     if run_cmd!(
         restic -r $backend:$repository --verbose --verbose restore $restore_snapshot --target $restore_folder;
@@ -24,6 +25,9 @@ fn do_restore(
     .is_err()
     {
         cprintln!("<r>Failed to restore snapshot: <c>{restore_snapshot}</c> into: <c>{restore_folder}</c></r>");
+    }
+    if run_cmd!(chown -R $user:$user $restore_folder).is_err() {
+        cprintln!("<r>Failed to change ownership of: <c>{restore_folder}</c></r>");
     }
 
     Ok(())
@@ -58,6 +62,7 @@ pub fn restore(noconfirm: bool) -> Result<()> {
     let repository = &settings[selection].repository;
     let restore_folder = &settings[selection].restore_folder;
     let restore_snapshot = snapshots_selector(backend, repository)?;
+    let user = &settings[selection].user;
 
     if Confirm::with_theme(&ColorfulTheme::default())
         .with_prompt(cformat!(
@@ -66,7 +71,7 @@ pub fn restore(noconfirm: bool) -> Result<()> {
         .default(true)
         .interact()?
     {
-        do_restore(backend, repository, restore_folder, &restore_snapshot)?;
+        do_restore(backend, repository, restore_folder, &restore_snapshot, user)?;
         pause()?;
     }
     if !noconfirm {

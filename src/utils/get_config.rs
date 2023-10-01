@@ -73,6 +73,7 @@ pub fn get_config() -> Result<Vec<Settings>> {
         .build()?;
 
     let user = find_config_file()
+        .unwrap()
         .iter()
         .nth(2)
         .and_then(|f| f.to_str())
@@ -87,7 +88,7 @@ pub fn get_config() -> Result<Vec<Settings>> {
         let deserialized_value = value.clone().try_deserialize::<serde_json::Value>()?;
 
         let settings_struct = Settings {
-            user: user.clone(),
+            user: user.clone().replace('\"', ""),
             name: key.to_string().replace('\"', ""),
 
             backend: deserialized_value
