@@ -1,10 +1,12 @@
 use crate::utils::macros::error;
 use anyhow::{Context, Result};
+use color_print::cformat;
 use config::Config;
-use std::{collections::HashMap, fs, path::PathBuf};
+use dialoguer::{theme::ColorfulTheme, Select};
+use lazy_static::lazy_static;
+use std::{collections::HashMap, fs, path::PathBuf, sync::Mutex};
 
 #[derive(Debug, Clone)]
-#[allow(dead_code)]
 pub struct Settings {
     pub user: String,
     pub backend: String,
@@ -17,25 +19,50 @@ pub struct Settings {
     pub env: Option<HashMap<String, String>>,
 }
 
-pub fn get_config() -> Result<Vec<Settings>> {
-    fn find_config_file() -> Option<PathBuf> {
-        let home_dir = PathBuf::from("/home/");
-        let mut path = PathBuf::new();
-        for entry in fs::read_dir(home_dir).ok()? {
-            let entry = entry.ok()?;
-            let mut env_path = entry.path();
-            env_path.push(".config/wrestic/wrestic.toml");
-            if env_path.exists() {
-                path = env_path;
-                break;
-            }
-        }
-        if path.exists() {
-            Some(path)
-        } else {
-            None
+lazy_static! {
+    static ref USER_CHOICE: Mutex<Option<PathBuf>> = Mutex::new(None);
+}
+
+fn find_config_file() -> Option<PathBuf> {
+    if let Ok(user_choice) = USER_CHOICE.lock() {
+        if let Some(path) = user_choice.clone() {
+            return Some(path);
         }
     }
+    let home_dir = PathBuf::from("/home/");
+    let mut config_paths = Vec::new();
+    for entry in fs::read_dir(home_dir).ok()? {
+        let entry = entry.ok()?;
+        let mut config_path = entry.path();
+        config_path.push(".config/wrestic/wrestic.toml");
+        if config_path.exists() {
+            config_paths.push(config_path);
+        }
+    }
+    let result = match config_paths.len() {
+        0 => None,
+        1 => Some(config_paths[0].clone()),
+        _ => {
+            let items: Vec<&str> = config_paths
+                .iter()
+                .map(|p| p.to_str().unwrap_or_default())
+                .collect();
+            let selection = Select::with_theme(&ColorfulTheme::default())
+                .with_prompt(cformat!("<y>Which config file do you want to use?"))
+                .default(0)
+                .items(&items[..])
+                .interact()
+                .unwrap();
+            Some(config_paths[selection].clone())
+        }
+    };
+    if let Ok(mut user_choice) = USER_CHOICE.lock() {
+        *user_choice = result.clone();
+    }
+    result
+}
+
+pub fn get_config() -> Result<Vec<Settings>> {
     let config = Config::builder()
         .add_source(config::File::with_name(
             find_config_file()
@@ -46,7 +73,6 @@ pub fn get_config() -> Result<Vec<Settings>> {
         .build()?;
 
     let user = find_config_file()
-        .unwrap()
         .iter()
         .nth(2)
         .and_then(|f| f.to_str())
