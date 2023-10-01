@@ -3,7 +3,7 @@ use std::{env, time::Duration};
 use crate::{
     modules::selector::selector,
     utils::{
-        get_config::Settings,
+        get_config::get_config,
         tools::{clear, pause},
     },
 };
@@ -32,7 +32,8 @@ fn get_snapshots(backend: &str, repository: &str) -> Result<()> {
     Ok(())
 }
 
-pub fn snapshots(settings: &Vec<Settings>, noconfirm: bool) -> Result<()> {
+pub fn snapshots(noconfirm: bool) -> Result<()> {
+    let settings = get_config()?;
     clear()?;
     cprintln!("<c,u,s>SNAPSHOTS");
     println!();

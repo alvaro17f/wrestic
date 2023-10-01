@@ -1,7 +1,7 @@
 use crate::{
     modules::selector::selector,
     utils::{
-        get_config::Settings,
+        get_config::get_config,
         tools::{clear, pause},
     },
 };
@@ -11,7 +11,8 @@ use color_print::{cformat, cprintln};
 use dialoguer::{theme::ColorfulTheme, Confirm};
 use std::env;
 
-pub fn initialize(settings: &Vec<Settings>, noconfirm: bool) -> Result<()> {
+pub fn initialize(noconfirm: bool) -> Result<()> {
+    let settings = get_config()?;
     clear()?;
     cprintln!("<c,u,s>INITIALIZE REPOSITORIES");
     println!();

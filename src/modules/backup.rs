@@ -1,7 +1,7 @@
 use crate::{
     modules::{repair::repair, selector::selector},
     utils::{
-        get_config::Settings,
+        get_config::get_config,
         tools::{clear, pause},
     },
 };
@@ -48,7 +48,8 @@ fn do_backup(backend: &str, repository: &str, backup_folder: &str, keep_last: &s
     Ok(())
 }
 
-pub fn backup(settings: &Vec<Settings>, noconfirm: bool) -> Result<()> {
+pub fn backup(noconfirm: bool) -> Result<()> {
+    let settings = get_config()?;
     clear()?;
     cprintln!("<c,u,s>BACKUP");
     println!();

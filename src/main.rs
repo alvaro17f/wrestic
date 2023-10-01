@@ -54,8 +54,6 @@ fn main() -> Result<()> {
     restic_checker()?;
     root_checker()?;
 
-    let settings = get_config()?;
-
     let cli = Cli::parse();
     if let Some(generator) = cli.generator {
         let mut cmd = Cli::command();
@@ -71,24 +69,25 @@ fn main() -> Result<()> {
 
     match &cli.commands {
         Some(Commands::Backup) => {
-            backup(&settings, true)?;
+            backup(true)?;
         }
         Some(Commands::Restore) => {
-            restore(&settings, true)?;
+            restore(true)?;
         }
         Some(Commands::Snapshots) => {
-            snapshots(&settings, true)?;
+            snapshots(true)?;
         }
         Some(Commands::Forget) => {
-            forget(&settings, true)?;
+            forget(true)?;
         }
         Some(Commands::Init) => {
-            initialize(&settings, true)?;
+            initialize(true)?;
         }
         Some(Commands::Check) => {
-            check(&settings, true)?;
+            check(true)?;
         }
         Some(Commands::Repair) => {
+            let settings = get_config()?;
             clear()?;
             cprintln!("<c,u,s>REPAIR");
             println!();

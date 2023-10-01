@@ -1,7 +1,7 @@
 use crate::{
     modules::{repair::repair, selector::selector},
     utils::{
-        get_config::Settings,
+        get_config::get_config,
         tools::{clear, pause},
     },
 };
@@ -30,7 +30,8 @@ fn do_check(backend: &str, repository: &str) -> Result<()> {
     Ok(())
 }
 
-pub fn check(settings: &Vec<Settings>, noconfirm: bool) -> Result<()> {
+pub fn check(noconfirm: bool) -> Result<()> {
+    let settings = get_config()?;
     clear()?;
     cprintln!("<c,u,s>CHECK");
     println!();

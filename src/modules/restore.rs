@@ -1,7 +1,7 @@
 use crate::{
     modules::selector::selector,
     utils::{
-        get_config::Settings,
+        get_config::get_config,
         snapshots_selector::snapshots_selector,
         tools::{clear, pause},
     },
@@ -29,7 +29,8 @@ fn do_restore(
     Ok(())
 }
 
-pub fn restore(settings: &Vec<Settings>, noconfirm: bool) -> Result<()> {
+pub fn restore(noconfirm: bool) -> Result<()> {
+    let settings = get_config()?;
     clear()?;
     cprintln!("<c,u,s>RESTORE");
     println!();

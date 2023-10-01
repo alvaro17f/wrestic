@@ -12,7 +12,6 @@ use std::{env, process::exit};
 
 pub fn selector() -> Result<()> {
     clear()?;
-    let settings = get_config()?;
     let exit_str = cformat!("<r>Exit");
     let selections = &[
         "Backup",
@@ -35,24 +34,25 @@ pub fn selector() -> Result<()> {
 
     match selections[selection] {
         "Backup" => {
-            backup(&settings, false)?;
+            backup(false)?;
         }
         "Restore" => {
-            restore(&settings, false)?;
+            restore(false)?;
         }
         "Snapshots" => {
-            snapshots(&settings, false)?;
+            snapshots(false)?;
         }
         "Forget" => {
-            forget(&settings, false)?;
+            forget(false)?;
         }
         "Initialize" => {
-            initialize(&settings, false)?;
+            initialize(false)?;
         }
         "Check" => {
-            check(&settings, false)?;
+            check(false)?;
         }
         "Repair" => {
+            let settings = get_config()?;
             clear()?;
             cprintln!("<c,u,s>REPAIR");
             println!();

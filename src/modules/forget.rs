@@ -3,7 +3,7 @@
 use crate::{
     modules::{repair::repair, selector::selector},
     utils::{
-        get_config::Settings,
+        get_config::get_config,
         snapshots_selector::snapshots_selector,
         tools::{clear, pause},
     },
@@ -14,7 +14,8 @@ use color_print::{cformat, cprintln};
 use dialoguer::{theme::ColorfulTheme, Confirm, Select};
 use std::env;
 
-pub fn forget(settings: &Vec<Settings>, noconfirm: bool) -> Result<()> {
+pub fn forget(noconfirm: bool) -> Result<()> {
+    let settings = get_config()?;
     clear()?;
     cprintln!("<c,u,s>DELETE");
     println!();
