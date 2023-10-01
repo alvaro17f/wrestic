@@ -60,7 +60,7 @@ Copy `wrestic.toml` to `/home/$USER/.config/wrestic/wrestic.toml` and modify the
 ## USAGE
 
 <div align="middle">
-  <img src="misc/wrestic.png" height="350" /> 
+  <img src="misc/wrestic_mockup.png" height="350" /> 
 </div>
 
 Simply run `sudo wrestic`.
