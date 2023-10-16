@@ -6,7 +6,7 @@ use dialoguer::{theme::ColorfulTheme, Select};
 use lazy_static::lazy_static;
 use std::{collections::HashMap, fs, path::PathBuf, sync::Mutex};
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct Settings {
     pub user: String,
     pub backend: String,
@@ -25,7 +25,7 @@ lazy_static! {
 
 fn find_config_file() -> Option<PathBuf> {
     if let Ok(user_choice) = USER_CHOICE.lock() {
-        if let Some(path) = user_choice.clone() {
+        if let Some(path) = user_choice.to_owned() {
             return Some(path);
         }
     }
@@ -39,27 +39,35 @@ fn find_config_file() -> Option<PathBuf> {
             config_paths.push(config_path);
         }
     }
-    let result = match config_paths.len() {
-        0 => None,
-        1 => Some(config_paths[0].clone()),
-        _ => {
-            let items: Vec<&str> = config_paths
-                .iter()
-                .map(|p| p.to_str().unwrap_or_default())
-                .collect();
-            let selection = Select::with_theme(&ColorfulTheme::default())
-                .with_prompt(cformat!("<y>Which config file do you want to use?"))
-                .default(0)
-                .items(&items[..])
-                .interact()
-                .unwrap();
-            Some(config_paths[selection].clone())
+    if config_paths.is_empty() {
+        let root_dir = PathBuf::from("/root/");
+        let mut config_path = root_dir;
+        config_path.push(".config/wrestic/wrestic.toml");
+        if config_path.exists() {
+            config_paths.push(config_path);
         }
-    };
-    if let Ok(mut user_choice) = USER_CHOICE.lock() {
-        *user_choice = result.clone();
     }
-    result
+    if config_paths.is_empty() {
+        None
+    } else if config_paths.len() == 1 {
+        Some(config_paths[0].to_path_buf())
+    } else {
+        let items: Vec<&str> = config_paths
+            .iter()
+            .map(|p| p.to_str().unwrap_or_default())
+            .collect();
+        let selection = Select::with_theme(&ColorfulTheme::default())
+            .with_prompt(cformat!("<y>Which config file do you want to use?"))
+            .default(0)
+            .items(&items[..])
+            .interact()
+            .unwrap();
+        let result = Some(config_paths[selection].to_path_buf());
+        if let Ok(mut user_choice) = USER_CHOICE.lock() {
+            *user_choice = result.to_owned();
+        }
+        result
+    }
 }
 
 pub fn get_config() -> Result<Vec<Settings>> {
@@ -85,10 +93,10 @@ pub fn get_config() -> Result<Vec<Settings>> {
     let mut settings: Vec<Settings> = Vec::new();
 
     for (key, value) in &settings_table {
-        let deserialized_value = value.clone().try_deserialize::<serde_json::Value>()?;
+        let deserialized_value = value.to_owned().try_deserialize::<serde_json::Value>()?;
 
         let settings_struct = Settings {
-            user: user.clone().replace('\"', ""),
+            user: user.to_owned().replace('\"', ""),
             name: key.to_string().replace('\"', ""),
 
             backend: deserialized_value

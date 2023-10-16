@@ -36,7 +36,7 @@ pub fn check(noconfirm: bool) -> Result<()> {
     cprintln!("<c,u,s>CHECK");
     println!();
     let selection = if settings.len() > 1 {
-        let selections: Vec<String> = settings.iter().map(|x| x.name.clone()).collect();
+        let selections: Vec<String> = settings.iter().map(|x| x.name.to_owned()).collect();
         Select::with_theme(&ColorfulTheme::default())
             .with_prompt(cformat!("<y>Where do you want to check?"))
             .default(0)

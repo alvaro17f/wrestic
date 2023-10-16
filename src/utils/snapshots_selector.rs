@@ -43,7 +43,7 @@ pub fn snapshots_selector(backend: &str, repository: &str) -> Result<String> {
         .captures_iter(&restic_rev)
         .map(|cap| (cap[1]).to_string())
         .collect::<Vec<String>>()[selection]
-        .clone();
+        .to_owned();
 
     Ok(selection)
 }

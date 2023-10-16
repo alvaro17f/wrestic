@@ -20,7 +20,7 @@ pub fn delete(noconfirm: bool) -> Result<()> {
     cprintln!("<c,u,s>DELETE");
     println!();
     let selection = if settings.len() > 1 {
-        let selections: Vec<String> = settings.iter().map(|x| x.name.clone()).collect();
+        let selections: Vec<String> = settings.iter().map(|x| x.name.to_owned()).collect();
         Select::with_theme(&ColorfulTheme::default())
             .with_prompt(cformat!("<y>What snapshot do you want to delete?"))
             .default(0)
