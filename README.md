@@ -78,16 +78,17 @@ Restic wrapper built in Rust
 Usage: wrestic [OPTIONS] [COMMAND]
 
 Commands:
-  backup     Make a backup of all your repositories
-  restore    Restore a snapshot
-  snapshots  List snapshots
-  delete     Delete a snapshot
-  init       Initialize all of your repositories
-  check      Check repository health
-  repair     Fix any issue
-  cache      Clean cache
-  update     Update Wrestic
-  help       Print this message or the help of the given subcommand(s)
+  backup, -b     Make a backup of all your repositories
+  restore, -r    Restore a snapshot
+  snapshots, -s  List snapshots
+  delete, -d     Delete a snapshot
+  init, -i       Initialize all of your repositories
+  check          Check repository health
+  repair         Fix any issue
+  cache          Clean cache
+  update, -u     Update Wrestic
+  custom, -c     Custom command
+  help           Print this message or the help of the given subcommand(s)
 
 Options:
       --generate <GENERATOR>  [possible values: bash, elvish, fish, powershell, zsh]
