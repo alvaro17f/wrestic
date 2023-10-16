@@ -50,7 +50,6 @@ pub fn delete(noconfirm: bool) -> Result<()> {
         .interact()?
     {
         if run_cmd!(
-
             restic -r $backend:$repository forget $delete_snapshots;
         )
         .is_err()

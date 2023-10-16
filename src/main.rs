@@ -8,8 +8,9 @@ use clap_complete::Shell;
 use color_print::{cformat, cprintln};
 use dialoguer::{theme::ColorfulTheme, Select};
 use modules::{
-    backup::backup, cache::cache, check::check, delete::delete, initialize::initialize,
-    repair::repair, restore::restore, selector::selector, snapshots::snapshots, update::update,
+    backup::backup, cache::cache, check::check, custom::custom, delete::delete,
+    initialize::initialize, repair::repair, restore::restore, selector::selector,
+    snapshots::snapshots, update::update,
 };
 use std::{env, process::exit};
 use utils::{
@@ -31,14 +32,19 @@ struct Cli {
 #[derive(Subcommand, Debug, PartialEq)]
 enum Commands {
     /// Make a backup of all your repositories
+    #[clap(short_flag = 'b')]
     Backup,
     /// Restore a snapshot
+    #[clap(short_flag = 'r')]
     Restore,
     /// List snapshots
+    #[clap(short_flag = 's')]
     Snapshots,
     /// Delete a snapshot
+    #[clap(short_flag = 'd')]
     Delete,
     /// Initialize all of your repositories
+    #[clap(short_flag = 'i')]
     Init,
     /// Check repository health
     Check,
@@ -47,7 +53,12 @@ enum Commands {
     /// Clean cache
     Cache,
     /// Update Wrestic
+    #[clap(short_flag = 'u')]
     Update,
+    /// Custom command
+    #[clap(short_flag = 'c', allow_hyphen_values = true)]
+    #[command(arg_required_else_help = true)]
+    Custom { args: Vec<String> },
 }
 
 fn main() -> Result<()> {
@@ -121,6 +132,9 @@ fn main() -> Result<()> {
         }
         Some(Commands::Update) => {
             update(true)?;
+        }
+        Some(Commands::Custom { args }) => {
+            custom(args)?;
         }
         None => {
             selector()?;
