@@ -70,7 +70,7 @@ Copy `wrestic.toml` to `/home/$USER/.config/wrestic/wrestic.toml` and modify the
 
 Simply run `sudo wrestic`.
 
-```sh
+```
 $ wrestic help
 
 Restic wrapper built in Rust
