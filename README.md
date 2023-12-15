@@ -26,6 +26,7 @@ Wrestic has support for all the restic backends, including:
   - [TABLE OF CONTENTS](#table-of-contents)
   - [INSTALLATION](#installation)
     - [WITH CARGO](#with-cargo)
+    - [AUR](#aur)
     - [DOWNLOAD BINARY](#download-binary)
     - [BUILD FROM SOURCE](#build-from-source)
   - [CONFIGURATION](#configuration)
@@ -40,6 +41,12 @@ Wrestic has support for all the restic backends, including:
 ```sh
 cargo install wrestic
 ```
+
+### AUR
+```sh
+paru -S wrestic
+```
+
 ### DOWNLOAD BINARY
 
 ```sh
