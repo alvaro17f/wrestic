@@ -1,10 +1,8 @@
-use crate::{
-    modules::selector::selector,
-    utils::{
-        get_current_shell::get_current_shell,
-        macros::error,
-        tools::{clear, pause},
-    },
+use crate::utils::{
+    get_current_shell::get_current_shell,
+    macros::error,
+    root_checker::root_checker,
+    tools::{clear, pause},
 };
 use anyhow::{Context, Result};
 use cmd_lib::run_cmd;
@@ -14,7 +12,8 @@ use indicatif::ProgressBar;
 use std::{
     env::current_exe,
     fs::{remove_file, File},
-    io::BufReader,
+    io::{BufReader, ErrorKind},
+    os::unix::process::CommandExt,
     path::Path,
     process::Command,
     time::Duration,
@@ -25,6 +24,7 @@ fn get_current_version() -> Result<String> {
     let version = env!("CARGO_PKG_VERSION").to_string();
     Ok(version)
 }
+
 fn get_latest_version(url: &str) -> Result<String> {
     let shell = get_current_shell()?;
     let output = Command::new(shell)
@@ -50,11 +50,77 @@ fn extract_wrestic(file_path: &str, extract_path: &str) -> Result<()> {
     let tar = BufReader::new(gz);
     let mut archive = Archive::new(tar);
     let extract_path_parent = Path::new(extract_path).parent().unwrap().to_owned();
-    archive.unpack(extract_path_parent)?;
+
+    match archive.unpack(&extract_path_parent) {
+        Ok(_) => Ok(()),
+        Err(e) => {
+            if e.kind() == std::io::ErrorKind::PermissionDenied {
+                Command::new("sudo")
+                    .arg("-E")
+                    .arg("tar")
+                    .arg("-xvf")
+                    .arg(file_path)
+                    .arg("-C")
+                    .arg(extract_path_parent.to_str().unwrap())
+                    .exec();
+                Ok(())
+            } else {
+                Err(e.into())
+            }
+        }
+    }
+}
+
+fn download_latest_version(shell: &str, url: &str, tmp_path: &str) -> Result<()> {
+    let command = format!(
+        r#"curl -sL $(curl -s "{url}" | grep browser_download_url | cut -d '"' -f 4) -o {tmp_path}"#
+    );
+
+    let command_result = run_cmd!(
+        $shell -c $command 2>/dev/null;
+    );
+
+    if let Err(e) = command_result {
+        if format!("{}", e).contains("Permission denied") {
+            root_checker()?;
+
+            if run_cmd!(
+                sudo -E $shell -c $command 2>/dev/null;
+            )
+            .is_err()
+            {
+                Err(error!("Failed downloading the latest version of wrestic"))?;
+            }
+        } else {
+            Err(error!("Failed downloading the latest version of wrestic"))?;
+        }
+    }
+
     Ok(())
 }
 
-pub fn update(noconfirm: bool) -> Result<()> {
+fn remove_file_with_permission_check(file_path: &str) -> Result<()> {
+    if let Err(e) = remove_file(file_path) {
+        if e.kind() == ErrorKind::PermissionDenied {
+            let output = Command::new("sudo")
+                .arg("-E")
+                .arg("rm")
+                .arg(file_path)
+                .output()
+                .expect("Failed to execute command");
+
+            if !output.status.success() {
+                return Err(error!("Failed removing file"));
+            }
+        } else {
+            return Err(error!("Failed removing file"));
+        }
+    }
+
+    Ok(())
+}
+
+pub fn update() -> Result<()> {
     clear()?;
     cprintln!("<c,u,s>UPDATER");
     println!();
@@ -63,10 +129,6 @@ pub fn update(noconfirm: bool) -> Result<()> {
     let bin_path = current_executable.to_str().unwrap();
     let tmp_path = "/tmp/wrestic.tar.gz";
     let url = "https://api.github.com/repos/alvaro17f/wrestic/releases/latest";
-
-    let command = format!(
-        r#"curl -sL $(curl -s "{url}" | grep browser_download_url | cut -d '"' -f 4) -o {tmp_path}"#
-    );
 
     if get_current_version()? >= get_latest_version(url)? {
         cprintln!("<g,u>Wrestic is already up to date!\n");
@@ -84,38 +146,25 @@ pub fn update(noconfirm: bool) -> Result<()> {
 
         let shell = get_current_shell()?;
 
-        if run_cmd!(
-            $shell -c $command;
-        )
-        .is_err()
-        {
-            pb.finish_and_clear();
-            Err(error!("Failed downloading the latest version of wrestic"))?;
-        }
+        download_latest_version(&shell, url, tmp_path)?;
 
-        if remove_file(bin_path).is_err() {
-            pb.finish_and_clear();
-            Err(error!("Failed removing the old wrestic version"))?;
-        }
+        pb.finish_and_clear();
+
+        remove_file_with_permission_check(bin_path)?;
+
+        pb.finish_and_clear();
 
         if extract_wrestic(tmp_path, bin_path).is_err() {
-            pb.finish_and_clear();
-            Err(error!(format!("Failed extracting wrestic into {bin_path}")))?;
-        };
-
-        if remove_file(tmp_path).is_err() {
-            pb.finish_and_clear();
-            Err(error!("Failed removing tmp files"))?;
-        } else {
-            pb.finish_and_clear();
-            cprintln!("<g,u>Wrestic was successfully updated\n");
+            Err(error!("Failed extracting the latest version of wrestic"))?;
         }
 
-        pause()?;
+        pb.finish_and_clear();
+
+        cprintln!(
+            "<g,u>Wrestic has been updated to version <k>{}<g,u>!",
+            get_latest_version(url)?
+        );
     }
 
-    if !noconfirm {
-        selector()?;
-    }
     Ok(())
 }

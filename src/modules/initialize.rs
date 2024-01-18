@@ -2,6 +2,8 @@ use crate::{
     modules::selector::selector,
     utils::{
         get_config::get_config,
+        root_checker::root_checker,
+        set_environment_variables::set_environment_variables,
         tools::{clear, pause},
     },
 };
@@ -9,13 +11,36 @@ use anyhow::Result;
 use cmd_lib::run_cmd;
 use color_print::{cformat, cprintln};
 use dialoguer::{theme::ColorfulTheme, Confirm};
-use std::env;
+use indicatif::ProgressBar;
+use std::time::Duration;
+
+fn initialize_repository(backend: &str, repository: &str) -> Result<()> {
+    root_checker()?;
+
+    let pb = ProgressBar::new_spinner();
+    pb.enable_steady_tick(Duration::from_millis(120));
+    pb.set_message("Initializing repositories...");
+
+    if run_cmd!(
+        sudo -E restic -r $backend:$repository init 2>/dev/null;
+    )
+    .is_err()
+    {
+        pb.finish_and_clear();
+        cprintln!("\n<g>Repository: <c>{repository}</c> already exists</g>\n");
+    }
+
+    pb.finish_and_clear();
+
+    Ok(())
+}
 
 pub fn initialize(noconfirm: bool) -> Result<()> {
-    let settings = get_config()?;
     clear()?;
     cprintln!("<c,u,s>INITIALIZE REPOSITORIES");
     println!();
+
+    let settings = get_config()?;
 
     if Confirm::with_theme(&ColorfulTheme::default())
         .with_prompt(cformat!(
@@ -25,24 +50,12 @@ pub fn initialize(noconfirm: bool) -> Result<()> {
         .interact()?
     {
         for conf in settings {
+            set_environment_variables(&conf)?;
+
             let backend = &conf.backend;
             let repository = &conf.repository;
 
-            env::set_var("USER", &conf.user);
-            env::set_var("RESTIC_PASSWORD", &conf.restic_password);
-            for env in &conf.env {
-                for (key, value) in env {
-                    env::set_var(key, value);
-                }
-            }
-
-            if run_cmd!(
-                restic -r $backend:$repository init;
-            )
-            .is_err()
-            {
-                cprintln!("<g>Repository: <c>{repository}</c> already exists</g>");
-            }
+            initialize_repository(backend, repository)?;
         }
         pause()?;
     }

@@ -2,6 +2,7 @@ use crate::{
     utils::macros::error,
     utils::{
         get_current_shell::get_current_shell,
+        root_checker::root_checker,
         tools::{clear, pause},
     },
 };
@@ -11,6 +12,22 @@ use color_print::{cformat, cprintln};
 use dialoguer::{theme::ColorfulTheme, Confirm};
 use std::process::exit;
 use which::which;
+
+fn install_restic(shell: &str, command: &str) -> Result<()> {
+    root_checker()?;
+
+    if run_cmd!(
+        sudo -E $shell -c $command;
+    )
+    .is_err()
+    {
+        Err(error!("Failed to install Restic"))
+    } else {
+        cprintln!("<g,u>Restic installed successfully!");
+        pause()?;
+        Ok(())
+    }
+}
 
 pub fn restic_checker() -> Result<()> {
     let url = "https://api.github.com/repos/restic/restic/releases/latest";
@@ -30,17 +47,7 @@ pub fn restic_checker() -> Result<()> {
                 .interact()?
             {
                 let shell = get_current_shell()?;
-                if run_cmd!(
-                    $shell -c $command;
-                )
-                .is_err()
-                {
-                    Err(error!("Failed to install Restic"))?
-                } else {
-                    cprintln!("<g,u>Restic installed successfully!");
-                    pause()?;
-                    Ok(())
-                }
+                Ok(install_restic(&shell, &command)?)
             } else {
                 exit(0);
             }

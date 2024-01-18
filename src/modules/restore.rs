@@ -2,6 +2,8 @@ use crate::{
     modules::selector::selector,
     utils::{
         get_config::get_config,
+        root_checker::root_checker,
+        set_environment_variables::set_environment_variables,
         snapshots_selector::snapshots_selector,
         tools::{clear, pause},
     },
@@ -10,7 +12,6 @@ use anyhow::Result;
 use cmd_lib::run_cmd;
 use color_print::{cformat, cprintln};
 use dialoguer::{theme::ColorfulTheme, Confirm, Select};
-use std::env;
 
 fn do_restore(
     backend: &str,
@@ -19,25 +20,29 @@ fn do_restore(
     restore_snapshot: &str,
     user: &str,
 ) -> Result<()> {
+    root_checker()?;
+
     if run_cmd!(
-        restic -r $backend:$repository --verbose --verbose restore $restore_snapshot --target $restore_folder;
+        sudo -E restic -r $backend:$repository --verbose --verbose restore $restore_snapshot --target $restore_folder;
     )
     .is_err()
     {
         cprintln!("<r>Failed to restore snapshot: <c>{restore_snapshot}</c> into: <c>{restore_folder}</c></r>");
     }
-    if run_cmd!(chown -R $user:$user $restore_folder).is_err() {
-        cprintln!("<r>Failed to change ownership of: <c>{restore_folder}</c></r>");
+    if run_cmd!(sudo -E chown -R $user:$user $restore_folder 2>/dev/null).is_err() {
+        cprintln!("\n<r>Failed to change ownership of: <c>{restore_folder}</c></r>\n");
     }
 
     Ok(())
 }
 
 pub fn restore(noconfirm: bool) -> Result<()> {
-    let settings = get_config()?;
     clear()?;
     cprintln!("<c,u,s>RESTORE");
     println!();
+
+    let settings = get_config()?;
+
     let selection = if settings.len() > 1 {
         let selections: Vec<String> = settings.iter().map(|x| x.name.to_owned()).collect();
         Select::with_theme(&ColorfulTheme::default())
@@ -50,19 +55,15 @@ pub fn restore(noconfirm: bool) -> Result<()> {
         0
     };
 
-    env::set_var("USER", &settings[selection].user);
-    env::set_var("RESTIC_PASSWORD", &settings[selection].restic_password);
-    for env in &settings[selection].env {
-        for (key, value) in env {
-            env::set_var(key, value);
-        }
-    }
+    let setting = &settings[selection];
 
-    let backend = &settings[selection].backend;
-    let repository = &settings[selection].repository;
-    let restore_folder = &settings[selection].restore_folder;
+    set_environment_variables(setting)?;
+
+    let backend = &setting.backend;
+    let repository = &setting.repository;
+    let restore_folder = &setting.restore_folder;
     let restore_snapshot = snapshots_selector(backend, repository)?;
-    let user = &settings[selection].user;
+    let user = &setting.user;
 
     if Confirm::with_theme(&ColorfulTheme::default())
         .with_prompt(cformat!(

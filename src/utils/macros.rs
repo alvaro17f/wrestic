@@ -22,5 +22,6 @@ macro_rules! error {
         anyhow::anyhow!(color_print::cformat!("<r>{}</r>", $err))
     };
 }
+
 pub(crate) use error;
 pub(crate) use error_detail;

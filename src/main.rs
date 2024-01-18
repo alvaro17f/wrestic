@@ -1,7 +1,10 @@
 mod modules;
 mod utils;
 
-use crate::utils::{completions::set_completions, tools::clear};
+use crate::utils::{
+    completions::set_completions, set_environment_variables::set_environment_variables,
+    tools::clear,
+};
 use anyhow::Result;
 use clap::{CommandFactory, Parser, Subcommand};
 use clap_complete::Shell;
@@ -12,10 +15,9 @@ use modules::{
     initialize::initialize, repair::repair, restore::restore, selector::selector,
     snapshots::snapshots, update::update,
 };
-use std::{env, process::exit};
+use std::process::exit;
 use utils::{
     completions::print_completions, get_config::get_config, restic_checker::restic_checker,
-    root_checker::root_checker,
 };
 
 #[derive(Parser, Debug, PartialEq)]
@@ -61,23 +63,22 @@ enum Commands {
     Custom { args: Vec<String> },
 }
 
-fn main() -> Result<()> {
-    restic_checker()?;
-    root_checker()?;
-
-    let cli = Cli::parse();
-    if let Some(generator) = cli.generator {
+fn handle_completions(cli: &Cli) -> Result<()> {
+    if let Some(generator) = cli.generator.as_ref() {
         let mut cmd = Cli::command();
-        if generator == Shell::Zsh || generator == Shell::Bash {
-            set_completions(generator, &mut cmd);
+        if generator == &Shell::Zsh || generator == &Shell::Bash || generator == &Shell::Fish {
+            set_completions(*generator, &mut cmd)?;
             cprintln!("<c>{}</c> <y>completions are set", generator);
             exit(0)
         } else {
-            print_completions(generator, &mut cmd);
+            print_completions(*generator, &mut cmd);
             exit(0)
         }
     }
+    Ok(())
+}
 
+fn handle_commands(cli: &Cli) -> Result<()> {
     match &cli.commands {
         Some(Commands::Backup) => {
             backup(true)?;
@@ -98,40 +99,13 @@ fn main() -> Result<()> {
             check(true)?;
         }
         Some(Commands::Repair) => {
-            let settings = get_config()?;
-            clear()?;
-            cprintln!("<c,u,s>REPAIR");
-            println!();
-            let selection = if settings.len() > 1 {
-                let selections: Vec<String> = settings.iter().map(|x| x.name.to_owned()).collect();
-                Select::with_theme(&ColorfulTheme::default())
-                    .with_prompt(cformat!("<y>Where do you want to perform a repair?"))
-                    .default(0)
-                    .max_length(10)
-                    .items(&selections[..])
-                    .interact()?
-            } else {
-                0
-            };
-
-            env::set_var("USER", &settings[selection].user);
-            env::set_var("RESTIC_PASSWORD", &settings[selection].restic_password);
-            for env in &settings[selection].env {
-                for (key, value) in env {
-                    env::set_var(key, value);
-                }
-            }
-
-            let backend = &settings[selection].backend;
-            let repository = &settings[selection].repository;
-
-            repair(backend, repository, true)?;
+            handle_repair()?;
         }
         Some(Commands::Cache) => {
             cache(true)?;
         }
         Some(Commands::Update) => {
-            update(true)?;
+            update()?;
         }
         Some(Commands::Custom { args }) => {
             custom(args)?;
@@ -140,6 +114,43 @@ fn main() -> Result<()> {
             selector()?;
         }
     }
+    Ok(())
+}
+
+fn handle_repair() -> Result<()> {
+    clear()?;
+    cprintln!("<c,u,s>REPAIR");
+    println!();
+
+    let settings = get_config()?;
+
+    let selection = if settings.len() > 1 {
+        let selections: Vec<String> = settings.iter().map(|x| x.name.to_owned()).collect();
+        Select::with_theme(&ColorfulTheme::default())
+            .with_prompt(cformat!("<y>Where do you want to perform a repair?"))
+            .default(0)
+            .max_length(10)
+            .items(&selections[..])
+            .interact()?
+    } else {
+        0
+    };
+
+    set_environment_variables(&settings[selection])?;
+
+    let backend = &settings[selection].backend;
+    let repository = &settings[selection].repository;
+
+    repair(backend, repository, true)?;
+    Ok(())
+}
+
+fn main() -> Result<()> {
+    restic_checker()?;
+
+    let cli = Cli::parse();
+    handle_completions(&cli)?;
+    handle_commands(&cli)?;
 
     Ok(())
 }
