@@ -121,50 +121,59 @@ fn remove_file_with_permission_check(file_path: &str) -> Result<()> {
 }
 
 pub fn update() -> Result<()> {
-    clear()?;
-    cprintln!("<c,u,s>UPDATER");
-    println!();
+    #[cfg(not(feature = "no-self-update"))]
+    const SELF_UPDATE: bool = true;
+    #[cfg(feature = "no-self-update")]
+    const SELF_UPDATE: bool = false;
 
-    let current_executable = &current_exe()?;
-    let bin_path = current_executable.to_str().unwrap();
-    let tmp_path = "/tmp/wrestic.tar.gz";
-    let url = "https://api.github.com/repos/alvaro17f/wrestic/releases/latest";
+    if SELF_UPDATE {
+        clear()?;
+        cprintln!("<c,u,s>UPDATER");
+        println!();
 
-    if get_current_version()? >= get_latest_version(url)? {
-        cprintln!("<g,u>Wrestic is already up to date!\n");
-        pause()?
-    } else {
-        cprintln!(
-            "<y>Wrestic is outdated!\n<r>current: <k>{}\n<g>latest: <k>{}\n",
-            get_current_version()?,
-            get_latest_version(url)?
-        );
+        let current_executable = &current_exe()?;
+        let bin_path = current_executable.to_str().unwrap();
+        let tmp_path = "/tmp/wrestic.tar.gz";
+        let url = "https://api.github.com/repos/alvaro17f/wrestic/releases/latest";
 
-        let pb = ProgressBar::new_spinner();
-        pb.enable_steady_tick(Duration::from_millis(120));
-        pb.set_message("Updating wrestic...");
+        if get_current_version()? >= get_latest_version(url)? {
+            cprintln!("<g,u>Wrestic is already up to date!\n");
+            pause()?
+        } else {
+            cprintln!(
+                "<y>Wrestic is outdated!\n<r>current: <k>{}\n<g>latest: <k>{}\n",
+                get_current_version()?,
+                get_latest_version(url)?
+            );
 
-        let shell = get_current_shell()?;
+            let pb = ProgressBar::new_spinner();
+            pb.enable_steady_tick(Duration::from_millis(120));
+            pb.set_message("Updating wrestic...");
 
-        download_latest_version(&shell, url, tmp_path)?;
+            let shell = get_current_shell()?;
 
-        pb.finish_and_clear();
+            download_latest_version(&shell, url, tmp_path)?;
 
-        remove_file_with_permission_check(bin_path)?;
+            pb.finish_and_clear();
 
-        pb.finish_and_clear();
+            remove_file_with_permission_check(bin_path)?;
 
-        if extract_wrestic(tmp_path, bin_path).is_err() {
-            Err(error!("Failed extracting the latest version of wrestic"))?;
+            pb.finish_and_clear();
+
+            if extract_wrestic(tmp_path, bin_path).is_err() {
+                Err(error!("Failed extracting the latest version of wrestic"))?;
+            }
+
+            pb.finish_and_clear();
+
+            cprintln!(
+                "<g,u>Wrestic has been updated to version <k>{}<g,u>!",
+                get_latest_version(url)?
+            );
         }
 
-        pb.finish_and_clear();
-
-        cprintln!(
-            "<g,u>Wrestic has been updated to version <k>{}<g,u>!",
-            get_latest_version(url)?
-        );
+        Ok(())
+    } else {
+        Err(error!("Self-update is disabled for this build. You should probably use your system package manager to update"))
     }
-
-    Ok(())
 }
