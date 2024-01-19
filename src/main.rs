@@ -61,6 +61,8 @@ enum Commands {
     #[clap(short_flag = 'c', allow_hyphen_values = true)]
     #[command(arg_required_else_help = true)]
     Custom { args: Vec<String> },
+    /// Generate tab-completion scripts for your shell
+    Completions { shell: Shell },
 }
 
 fn handle_completions(cli: &Cli) -> Result<()> {
@@ -109,6 +111,14 @@ fn handle_commands(cli: &Cli) -> Result<()> {
         }
         Some(Commands::Custom { args }) => {
             custom(args)?;
+        }
+        Some(Commands::Completions { shell }) => {
+            clap_complete::generate(
+                *shell,
+                &mut Cli::command(),
+                "wrestic",
+                &mut std::io::stdout().lock(),
+            );
         }
         None => {
             selector()?;
