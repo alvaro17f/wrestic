@@ -62,6 +62,9 @@ pub fn snapshots_selector(backend: &str, repository: &str) -> Result<String> {
     let selection = Regex::new(r"(\w+)\s+(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})")?
         .captures_iter(&restic)
         .map(|cap| (cap[1]).to_string())
+        .collect::<Vec<String>>()
+        .into_iter()
+        .rev()
         .collect::<Vec<String>>()[selection]
         .to_owned();
 
