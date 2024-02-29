@@ -1,3 +1,4 @@
+#![allow(dead_code)]
 use crate::utils::macros::error;
 use anyhow::Result;
 use color_print::cformat;

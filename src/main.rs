@@ -1,10 +1,7 @@
 mod modules;
 mod utils;
 
-use crate::utils::{
-    completions::set_completions, set_environment_variables::set_environment_variables,
-    tools::clear,
-};
+use crate::utils::{set_environment_variables::set_environment_variables, tools::clear};
 use anyhow::Result;
 use clap::{CommandFactory, Parser, Subcommand};
 use clap_complete::Shell;
@@ -15,17 +12,11 @@ use modules::{
     initialize::initialize, repair::repair, restore::restore, selector::selector,
     snapshots::snapshots, update::update,
 };
-use std::process::exit;
-use utils::{
-    completions::print_completions, get_config::get_config, restic_checker::restic_checker,
-};
+use utils::{get_config::get_config, restic_checker::restic_checker};
 
 #[derive(Parser, Debug, PartialEq)]
 #[command(author, version, about, long_about = None)]
 struct Cli {
-    // If provided, generate completions for given shell
-    #[arg(long = "generate", value_enum)]
-    generator: Option<Shell>,
     /// List of available commands
     #[command(subcommand)]
     commands: Option<Commands>,
@@ -61,21 +52,11 @@ enum Commands {
     #[clap(short_flag = 'c', allow_hyphen_values = true)]
     #[command(arg_required_else_help = true)]
     Custom { args: Vec<String> },
-}
-
-fn handle_completions(cli: &Cli) -> Result<()> {
-    if let Some(generator) = cli.generator.as_ref() {
-        let mut cmd = Cli::command();
-        if generator == &Shell::Zsh || generator == &Shell::Bash || generator == &Shell::Fish {
-            set_completions(*generator, &mut cmd)?;
-            cprintln!("<c>{}</c> <y>completions are set", generator);
-            exit(0)
-        } else {
-            print_completions(*generator, &mut cmd);
-            exit(0)
-        }
-    }
-    Ok(())
+    /// Generate tab-completion scripts for your shell
+    Completions {
+        #[clap(value_enum)]
+        shell: Shell,
+    },
 }
 
 fn handle_commands(cli: &Cli) -> Result<()> {
@@ -109,6 +90,14 @@ fn handle_commands(cli: &Cli) -> Result<()> {
         }
         Some(Commands::Custom { args }) => {
             custom(args)?;
+        }
+        Some(Commands::Completions { shell }) => {
+            clap_complete::generate(
+                *shell,
+                &mut Cli::command(),
+                "wrestic",
+                &mut std::io::stdout().lock(),
+            );
         }
         None => {
             selector()?;
@@ -149,7 +138,6 @@ fn main() -> Result<()> {
     restic_checker()?;
 
     let cli = Cli::parse();
-    handle_completions(&cli)?;
     handle_commands(&cli)?;
 
     Ok(())
