@@ -40,7 +40,7 @@ pub fn custom(args: &Vec<String>) -> Result<()> {
     let settings = get_config()?;
 
     let selection = if settings.len() > 1 {
-        let selections: Vec<String> = settings.iter().map(|x| x.name.to_owned()).collect();
+        let selections: Vec<String> = settings.iter().map(|x| x.name.to_string()).collect();
         Select::with_theme(&ColorfulTheme::default())
             .with_prompt(cformat!("<y>Where do you want to work?"))
             .default(0)

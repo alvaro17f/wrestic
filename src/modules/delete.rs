@@ -5,13 +5,13 @@ use crate::{
         root_checker::root_checker,
         set_environment_variables::set_environment_variables,
         snapshots_selector::snapshots_selector,
-        tools::{clear, pause},
+        tools::{clear, confirm, pause},
     },
 };
 use anyhow::Result;
 use cmd_lib::run_cmd;
 use color_print::{cformat, cprintln};
-use dialoguer::{theme::ColorfulTheme, Confirm, Select};
+use dialoguer::{theme::ColorfulTheme, Select};
 
 fn delete_snapshot(backend: &str, repository: &str, delete_snapshots: &str) -> Result<()> {
     root_checker()?;
@@ -23,11 +23,7 @@ fn delete_snapshot(backend: &str, repository: &str, delete_snapshots: &str) -> R
     {
         cprintln!("\n<r>Failed to delete snapshot!\n");
 
-        if Confirm::with_theme(&ColorfulTheme::default())
-            .with_prompt(cformat!("<y>Do you want to repair? (Y/n):"))
-            .default(true)
-            .interact()?
-        {
+        if confirm("Do you want to repair? (Y/n): ", true) {
             repair(backend, repository, true)?;
             if run_cmd!(
                 sudo -E restic -r $backend:$repository forget $delete_snapshots;
@@ -51,7 +47,7 @@ pub fn delete(noconfirm: bool) -> Result<()> {
     let settings = get_config()?;
 
     let selection = if settings.len() > 1 {
-        let selections: Vec<String> = settings.iter().map(|x| x.name.to_owned()).collect();
+        let selections: Vec<String> = settings.iter().map(|x| x.name.to_string()).collect();
         Select::with_theme(&ColorfulTheme::default())
             .with_prompt(cformat!("<y>What snapshot do you want to delete?"))
             .default(0)
@@ -68,13 +64,10 @@ pub fn delete(noconfirm: bool) -> Result<()> {
     let repository = &settings[selection].repository;
     let delete_snapshots = snapshots_selector(backend, repository)?;
 
-    if Confirm::with_theme(&ColorfulTheme::default())
-        .with_prompt(cformat!(
-            "<y>Do you want to delete the snapshot with ID {delete_snapshots}? (Y/n): "
-        ))
-        .default(true)
-        .interact()?
-    {
+    if confirm(
+        &format!("Do you want to delete the snapshot with ID {delete_snapshots}? (Y/n): "),
+        true,
+    ) {
         delete_snapshot(backend, repository, &delete_snapshots)?;
     }
 

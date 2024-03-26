@@ -4,13 +4,13 @@ use crate::{
         get_config::{get_config, Settings},
         root_checker::root_checker,
         set_environment_variables::set_environment_variables,
-        tools::{clear, pause},
+        tools::{clear, confirm, pause},
     },
 };
 use anyhow::Result;
 use cmd_lib::run_cmd;
 use color_print::{cformat, cprintln};
-use dialoguer::{theme::ColorfulTheme, Confirm, Select};
+use dialoguer::{theme::ColorfulTheme, Select};
 
 fn do_backup(setting: &Settings) -> Result<()> {
     root_checker()?;
@@ -34,10 +34,8 @@ fn do_backup(setting: &Settings) -> Result<()> {
     .is_err()
     {
         cprintln!("\n<r>Failed to delete old snapshots keeping last {keep_last}\n");
-        if Confirm::with_theme(&ColorfulTheme::default())
-            .with_prompt(cformat!("<y>Do you want to repair? (Y/n):"))
-            .default(true)
-            .interact()?
+
+        if confirm("Do you want to repair? (Y/n): ", true)
         {
             repair(backend, repository, true)?;
 
@@ -70,7 +68,7 @@ pub fn backup(noconfirm: bool) -> Result<()> {
         }
     } else {
         let selection = if settings.len() > 1 {
-            let selections: Vec<String> = settings.iter().map(|x| x.name.to_owned()).collect();
+            let selections: Vec<String> = settings.iter().map(|x| x.name.to_string()).collect();
             Select::with_theme(&ColorfulTheme::default())
                 .with_prompt(cformat!("<y>Where do you want to perform a backup?"))
                 .default(0)
@@ -85,14 +83,13 @@ pub fn backup(noconfirm: bool) -> Result<()> {
 
         set_environment_variables(setting)?;
 
-        if Confirm::with_theme(&ColorfulTheme::default())
-            .with_prompt(cformat!(
-                "<y>Do you want to perform a backup for {}? (Y/n): ",
+        if confirm(
+            &format!(
+                "Do you want to perform a backup for {}? (Y/n): ",
                 setting.name
-            ))
-            .default(true)
-            .interact()?
-        {
+            ),
+            true,
+        ) {
             do_backup(setting)?;
             pause()?;
         }

@@ -5,13 +5,13 @@ use crate::{
         root_checker::root_checker,
         set_environment_variables::set_environment_variables,
         snapshots_selector::snapshots_selector,
-        tools::{clear, pause},
+        tools::{clear, confirm, pause},
     },
 };
 use anyhow::Result;
 use cmd_lib::run_cmd;
 use color_print::{cformat, cprintln};
-use dialoguer::{theme::ColorfulTheme, Confirm, Select};
+use dialoguer::{theme::ColorfulTheme, Select};
 
 fn do_restore(
     backend: &str,
@@ -44,7 +44,7 @@ pub fn restore(noconfirm: bool) -> Result<()> {
     let settings = get_config()?;
 
     let selection = if settings.len() > 1 {
-        let selections: Vec<String> = settings.iter().map(|x| x.name.to_owned()).collect();
+        let selections: Vec<String> = settings.iter().map(|x| x.name.to_string()).collect();
         Select::with_theme(&ColorfulTheme::default())
             .with_prompt(cformat!("<y>Where do you want to restore from?"))
             .default(0)
@@ -65,13 +65,10 @@ pub fn restore(noconfirm: bool) -> Result<()> {
     let restore_snapshot = snapshots_selector(backend, repository)?;
     let user = &setting.user;
 
-    if Confirm::with_theme(&ColorfulTheme::default())
-        .with_prompt(cformat!(
-            "<y>Do you want to restore the snapshot with ID {restore_snapshot}? (Y/n): "
-        ))
-        .default(true)
-        .interact()?
-    {
+    if confirm(
+        &format!("<y>Do you want to restore the snapshot with ID {restore_snapshot}? (Y/n): "),
+        true,
+    ) {
         do_restore(backend, repository, restore_folder, &restore_snapshot, user)?;
         pause()?;
     }

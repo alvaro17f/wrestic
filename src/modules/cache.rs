@@ -2,13 +2,12 @@ use crate::{
     modules::selector::selector,
     utils::{
         root_checker::root_checker,
-        tools::{clear, pause},
+        tools::{clear, confirm, pause},
     },
 };
 use anyhow::Result;
 use cmd_lib::run_cmd;
-use color_print::{cformat, cprintln};
-use dialoguer::{theme::ColorfulTheme, Confirm};
+use color_print::cprintln;
 
 fn clean_cache() -> Result<()> {
     root_checker()?;
@@ -29,12 +28,7 @@ pub fn cache(noconfirm: bool) -> Result<()> {
     cprintln!("<c,u,s>CACHE");
     println!();
 
-    if noconfirm
-        || Confirm::with_theme(&ColorfulTheme::default())
-            .with_prompt(cformat!("<y>Do you want to clean cache? (Y/n): "))
-            .default(true)
-            .interact()?
-    {
+    if noconfirm || confirm("Do you want to clean cache? (Y/n): ", true) {
         clean_cache()?;
 
         if !noconfirm {

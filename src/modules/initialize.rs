@@ -4,13 +4,12 @@ use crate::{
         get_config::get_config,
         root_checker::root_checker,
         set_environment_variables::set_environment_variables,
-        tools::{clear, pause},
+        tools::{clear, confirm, pause},
     },
 };
 use anyhow::Result;
 use cmd_lib::run_cmd;
-use color_print::{cformat, cprintln};
-use dialoguer::{theme::ColorfulTheme, Confirm};
+use color_print::cprintln;
 use indicatif::ProgressBar;
 use std::time::Duration;
 
@@ -42,13 +41,7 @@ pub fn initialize(noconfirm: bool) -> Result<()> {
 
     let settings = get_config()?;
 
-    if Confirm::with_theme(&ColorfulTheme::default())
-        .with_prompt(cformat!(
-            "<y>Do you want to initialize all repositories? (Y/n): "
-        ))
-        .default(true)
-        .interact()?
-    {
+    if confirm("Do you want to initialize all repositories? (Y/n): ", true) {
         for conf in settings {
             set_environment_variables(&conf)?;
 

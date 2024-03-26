@@ -1,11 +1,13 @@
 use crate::{
     modules::selector::selector,
-    utils::{root_checker::root_checker, tools::pause},
+    utils::{
+        root_checker::root_checker,
+        tools::{confirm, pause},
+    },
 };
 use anyhow::Result;
 use cmd_lib::run_cmd;
-use color_print::{cformat, cprintln};
-use dialoguer::{theme::ColorfulTheme, Confirm};
+use color_print::cprintln;
 
 fn repair_repository(backend: &str, repository: &str) -> Result<()> {
     root_checker()?;
@@ -25,14 +27,7 @@ fn repair_repository(backend: &str, repository: &str) -> Result<()> {
 }
 
 pub fn repair(backend: &str, repository: &str, noconfirm: bool) -> Result<()> {
-    if noconfirm
-        || Confirm::with_theme(&ColorfulTheme::default())
-            .with_prompt(cformat!(
-                "<y>Do you want to repair your repository? (Y/n): "
-            ))
-            .default(true)
-            .interact()?
-    {
+    if noconfirm || confirm("Do you want to repair your repository? (Y/n): ", true) {
         repair_repository(backend, repository)?;
 
         if !noconfirm {

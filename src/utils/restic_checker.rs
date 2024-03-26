@@ -1,15 +1,12 @@
-use crate::{
-    utils::macros::error,
-    utils::{
-        get_current_shell::get_current_shell,
-        root_checker::root_checker,
-        tools::{clear, pause},
-    },
+use crate::utils::{
+    get_current_shell::get_current_shell,
+    macros::error,
+    root_checker::root_checker,
+    tools::{clear, confirm, pause},
 };
 use anyhow::Result;
 use cmd_lib::run_cmd;
-use color_print::{cformat, cprintln};
-use dialoguer::{theme::ColorfulTheme, Confirm};
+use color_print::cprintln;
 use std::process::exit;
 use which::which;
 
@@ -41,11 +38,7 @@ pub fn restic_checker() -> Result<()> {
             cprintln!("<c,u,s>RESTIC");
             println!();
             cprintln!("<r>Restic not found\n");
-            if Confirm::with_theme(&ColorfulTheme::default())
-                .with_prompt(cformat!("<y>Would you like to install Restic? (Y/n):"))
-                .default(true)
-                .interact()?
-            {
+            if confirm("Would you like to install Restic? (Y/n): ", true) {
                 let shell = get_current_shell()?;
                 Ok(install_restic(&shell, &command)?)
             } else {
