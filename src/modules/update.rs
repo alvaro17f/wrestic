@@ -1,6 +1,6 @@
+use crate::macros::errors::error;
 use crate::utils::{
     get_current_shell::get_current_shell,
-    macros::error,
     root_checker::root_checker,
     tools::{clear, pause},
 };

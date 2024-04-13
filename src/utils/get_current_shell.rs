@@ -1,4 +1,4 @@
-use crate::utils::macros::error;
+use crate::macros::errors::error;
 use anyhow::{Context, Result};
 use std::env;
 

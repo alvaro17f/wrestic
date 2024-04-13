@@ -1,8 +1,11 @@
 use std::{process::Command, time::Duration};
 
-use crate::utils::{
-    get_config::get_config, macros::error, root_checker::root_checker,
-    set_environment_variables::set_environment_variables, tools::clear,
+use crate::{
+    macros::errors::error,
+    utils::{
+        get_config::get_config, root_checker::root_checker,
+        set_environment_variables::set_environment_variables, tools::clear,
+    },
 };
 use anyhow::{Context, Result};
 use color_print::{cformat, cprintln};
