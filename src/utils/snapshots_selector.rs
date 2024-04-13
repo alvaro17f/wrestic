@@ -1,11 +1,9 @@
+use crate::utils::root_checker::root_checker;
+use crate::utils::tools::select;
 use anyhow::Result;
-use color_print::cformat;
-use dialoguer::{theme::ColorfulTheme, Select};
 use indicatif::ProgressBar;
 use regex::Regex;
 use std::{process::Command, time::Duration};
-
-use crate::utils::root_checker::root_checker;
 
 fn get_snapshots(backend: &str, repository: &str) -> Result<String> {
     let restic = Command::new("sudo")
@@ -52,12 +50,7 @@ pub fn snapshots_selector(backend: &str, repository: &str) -> Result<String> {
 
     let selections = parse_snapshots(&restic)?;
 
-    let selection = Select::with_theme(&ColorfulTheme::default())
-        .with_prompt(cformat!("<g>Snapshots:"))
-        .default(0)
-        .max_length(10)
-        .items(&selections[..])
-        .interact()?;
+    let selection = select("Snapshots:", selections);
 
     let selection = Regex::new(r"(\w+)\s+(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})")?
         .captures_iter(&restic)

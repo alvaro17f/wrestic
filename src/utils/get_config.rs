@@ -1,8 +1,7 @@
 use crate::macros::errors::error;
+use crate::utils::tools::select;
 use anyhow::{Context, Result};
-use color_print::cformat;
 use config::Config;
-use dialoguer::{theme::ColorfulTheme, Select};
 use lazy_static::lazy_static;
 use std::{collections::HashMap, fs, path::PathBuf, sync::Mutex};
 
@@ -56,12 +55,10 @@ fn find_config_file() -> Option<PathBuf> {
             .iter()
             .map(|p| p.to_str().unwrap_or_default())
             .collect();
-        let selection = Select::with_theme(&ColorfulTheme::default())
-            .with_prompt(cformat!("<y>Which config file do you want to use?"))
-            .default(0)
-            .items(&items[..])
-            .interact()
-            .unwrap();
+        let selection = select(
+            "Which config file do you want to use?",
+            items.iter().map(|x| x.to_string()).collect(),
+        );
         let result = Some(config_paths[selection].to_path_buf());
         if let Ok(mut user_choice) = USER_CHOICE.lock() {
             *user_choice = result.to_owned();

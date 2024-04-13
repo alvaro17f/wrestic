@@ -4,13 +4,12 @@ use crate::{
         get_config::get_config,
         root_checker::root_checker,
         set_environment_variables::set_environment_variables,
-        tools::{clear, pause},
+        tools::{clear, pause, select},
     },
 };
 use anyhow::Result;
 use cmd_lib::run_cmd;
-use color_print::{cformat, cprintln};
-use dialoguer::{theme::ColorfulTheme, Select};
+use color_print::cprintln;
 use indicatif::ProgressBar;
 use std::time::Duration;
 
@@ -44,12 +43,7 @@ pub fn snapshots(noconfirm: bool) -> Result<()> {
 
     let selection = if settings.len() > 1 {
         let selections: Vec<String> = settings.iter().map(|x| x.name.to_string()).collect();
-        Select::with_theme(&ColorfulTheme::default())
-            .with_prompt(cformat!("<y>Where do you want to list snapshots from?"))
-            .default(0)
-            .max_length(10)
-            .items(&selections[..])
-            .interact()?
+        select("Where do you want to list snapshots from?", selections)
     } else {
         0
     };

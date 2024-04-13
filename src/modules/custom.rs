@@ -3,13 +3,14 @@ use std::{process::Command, time::Duration};
 use crate::{
     macros::errors::error,
     utils::{
-        get_config::get_config, root_checker::root_checker,
-        set_environment_variables::set_environment_variables, tools::clear,
+        get_config::get_config,
+        root_checker::root_checker,
+        set_environment_variables::set_environment_variables,
+        tools::{clear, select},
     },
 };
 use anyhow::{Context, Result};
-use color_print::{cformat, cprintln};
-use dialoguer::{theme::ColorfulTheme, Select};
+use color_print::cprintln;
 use indicatif::ProgressBar;
 
 fn run_custom_command(backend: &str, repository: &str, args: &Vec<String>) -> Result<()> {
@@ -44,12 +45,7 @@ pub fn custom(args: &Vec<String>) -> Result<()> {
 
     let selection = if settings.len() > 1 {
         let selections: Vec<String> = settings.iter().map(|x| x.name.to_string()).collect();
-        Select::with_theme(&ColorfulTheme::default())
-            .with_prompt(cformat!("<y>Where do you want to work?"))
-            .default(0)
-            .max_length(10)
-            .items(&selections[..])
-            .interact()?
+        select("Where do you want to work?", selections)
     } else {
         0
     };

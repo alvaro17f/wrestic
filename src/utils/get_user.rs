@@ -1,9 +1,7 @@
 #![allow(dead_code)]
 use crate::macros::errors::error;
+use crate::utils::tools::select;
 use anyhow::Result;
-use color_print::cformat;
-use dialoguer::theme::ColorfulTheme;
-use dialoguer::Select;
 use std::fs;
 
 pub fn get_user() -> Result<String> {
@@ -28,12 +26,7 @@ pub fn get_user() -> Result<String> {
         )),
         1 => Ok(users[0].to_string()),
         _ => {
-            let selection = Select::with_theme(&ColorfulTheme::default())
-                .with_prompt(cformat!("<y>Who are you?"))
-                .default(0)
-                .max_length(10)
-                .items(&users)
-                .interact()?;
+            let selection = select("Who are you?", users.clone());
             Ok(users[selection].to_string())
         }
     }

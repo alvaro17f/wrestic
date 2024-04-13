@@ -5,13 +5,12 @@ use crate::{
         root_checker::root_checker,
         set_environment_variables::set_environment_variables,
         snapshots_selector::snapshots_selector,
-        tools::{clear, confirm, pause},
+        tools::{clear, confirm, pause, select},
     },
 };
 use anyhow::Result;
 use cmd_lib::run_cmd;
-use color_print::{cformat, cprintln};
-use dialoguer::{theme::ColorfulTheme, Select};
+use color_print::cprintln;
 
 fn do_restore(
     backend: &str,
@@ -45,12 +44,7 @@ pub fn restore(noconfirm: bool) -> Result<()> {
 
     let selection = if settings.len() > 1 {
         let selections: Vec<String> = settings.iter().map(|x| x.name.to_string()).collect();
-        Select::with_theme(&ColorfulTheme::default())
-            .with_prompt(cformat!("<y>Where do you want to restore from?"))
-            .default(0)
-            .max_length(10)
-            .items(&selections[..])
-            .interact()?
+        select("Where do you want to restore from?", selections)
     } else {
         0
     };
@@ -66,7 +60,7 @@ pub fn restore(noconfirm: bool) -> Result<()> {
     let user = &setting.user;
 
     if confirm(
-        &format!("<y>Do you want to restore the snapshot with ID {restore_snapshot}? (Y/n): "),
+        &format!("Do you want to restore the snapshot with ID {restore_snapshot}? (Y/n): "),
         true,
     ) {
         do_restore(backend, repository, restore_folder, &restore_snapshot, user)?;

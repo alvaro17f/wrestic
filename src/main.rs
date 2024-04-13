@@ -2,12 +2,14 @@ mod macros;
 mod modules;
 mod utils;
 
-use crate::utils::{set_environment_variables::set_environment_variables, tools::clear};
+use crate::utils::{
+    set_environment_variables::set_environment_variables,
+    tools::{clear, select},
+};
 use anyhow::Result;
 use clap::{CommandFactory, Parser, Subcommand};
 use clap_complete::Shell;
-use color_print::{cformat, cprintln};
-use dialoguer::{theme::ColorfulTheme, Select};
+use color_print::cprintln;
 use modules::{
     backup::backup, cache::cache, check::check, custom::custom, delete::delete,
     initialize::initialize, repair::repair, restore::restore, selector::selector,
@@ -116,12 +118,7 @@ fn handle_repair() -> Result<()> {
 
     let selection = if settings.len() > 1 {
         let selections: Vec<String> = settings.iter().map(|x| x.name.to_string()).collect();
-        Select::with_theme(&ColorfulTheme::default())
-            .with_prompt(cformat!("<y>Where do you want to perform a repair?"))
-            .default(0)
-            .max_length(10)
-            .items(&selections[..])
-            .interact()?
+        select("Where do you want to perform a repair?", selections)
     } else {
         0
     };

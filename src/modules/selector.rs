@@ -4,12 +4,13 @@ use crate::{
         repair::repair, restore::restore, snapshots::snapshots,
     },
     utils::{
-        get_config::get_config, set_environment_variables::set_environment_variables, tools::clear,
+        get_config::get_config,
+        set_environment_variables::set_environment_variables,
+        tools::{clear, select, select_title},
     },
 };
 use anyhow::Result;
 use color_print::{cformat, cprintln};
-use dialoguer::{theme::ColorfulTheme, Select};
 use std::process::exit;
 
 fn handle_selection(selection: &str) -> Result<()> {
@@ -38,12 +39,7 @@ fn handle_repair() -> Result<()> {
 
     let selection = if settings.len() > 1 {
         let selections: Vec<String> = settings.iter().map(|x| x.name.to_string()).collect();
-        Select::with_theme(&ColorfulTheme::default())
-            .with_prompt(cformat!("<y>Where do you want to perform a repair?"))
-            .default(0)
-            .max_length(10)
-            .items(&selections[..])
-            .interact()?
+        select("Where do you want to perform a repair?", selections)
     } else {
         0
     };
@@ -59,23 +55,18 @@ fn handle_repair() -> Result<()> {
 pub fn selector() -> Result<()> {
     clear()?;
     let exit_str = cformat!("<r>Exit");
-    let selections = &[
-        "Backup",
-        "Restore",
-        "Snapshots",
-        "Delete",
-        "Initialize",
-        "Check",
-        "Repair",
-        "Cache",
-        exit_str.as_str(),
+    let selections = vec![
+        "Backup".to_string(),
+        "Restore".to_string(),
+        "Snapshots".to_string(),
+        "Delete".to_string(),
+        "Initialize".to_string(),
+        "Check".to_string(),
+        "Repair".to_string(),
+        "Cache".to_string(),
+        exit_str,
     ];
-    let selection = Select::with_theme(&ColorfulTheme::default())
-        .with_prompt(cformat!("<g>WRESTIC"))
-        .default(0)
-        .max_length(10)
-        .items(&selections[..])
-        .interact()?;
+    let selection = select_title("WRESTIC", selections.clone());
 
-    handle_selection(selections[selection])
+    handle_selection(&selections[selection])
 }

@@ -4,13 +4,12 @@ use crate::{
         get_config::get_config,
         root_checker::root_checker,
         set_environment_variables::set_environment_variables,
-        tools::{clear, confirm, pause},
+        tools::{clear, confirm, pause, select},
     },
 };
 use anyhow::Result;
 use cmd_lib::run_cmd;
-use color_print::{cformat, cprintln};
-use dialoguer::{theme::ColorfulTheme, Select};
+use color_print::cprintln;
 
 fn do_check(backend: &str, repository: &str) -> Result<()> {
     root_checker()?;
@@ -39,12 +38,7 @@ pub fn check(noconfirm: bool) -> Result<()> {
 
     let selection = if settings.len() > 1 {
         let selections: Vec<String> = settings.iter().map(|x| x.name.to_string()).collect();
-        Select::with_theme(&ColorfulTheme::default())
-            .with_prompt(cformat!("<y>Where do you want to check?"))
-            .default(0)
-            .max_length(10)
-            .items(&selections[..])
-            .interact()?
+        select("Where do you want to check?", selections)
     } else {
         0
     };

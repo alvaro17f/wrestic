@@ -5,13 +5,12 @@ use crate::{
         root_checker::root_checker,
         set_environment_variables::set_environment_variables,
         snapshots_selector::snapshots_selector,
-        tools::{clear, confirm, pause},
+        tools::{clear, confirm, pause, select},
     },
 };
 use anyhow::Result;
 use cmd_lib::run_cmd;
-use color_print::{cformat, cprintln};
-use dialoguer::{theme::ColorfulTheme, Select};
+use color_print::cprintln;
 
 fn delete_snapshot(backend: &str, repository: &str, delete_snapshots: &str) -> Result<()> {
     root_checker()?;
@@ -48,12 +47,7 @@ pub fn delete(noconfirm: bool) -> Result<()> {
 
     let selection = if settings.len() > 1 {
         let selections: Vec<String> = settings.iter().map(|x| x.name.to_string()).collect();
-        Select::with_theme(&ColorfulTheme::default())
-            .with_prompt(cformat!("<y>What snapshot do you want to delete?"))
-            .default(0)
-            .max_length(10)
-            .items(&selections[..])
-            .interact()?
+        select("What snapshot do you want to delete?", selections)
     } else {
         0
     };
