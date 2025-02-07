@@ -18,7 +18,7 @@
         name = "wrestic";
         src = self;
         useFetchCargoVendor = true;
-        cargoHash = "sha256-QHCGUL2puzBShuudqiq29SS0JTKElaRptgBsAqq3q80=";
+        cargoHash = "sha256-iEguoD1xaNU/MFVZlVcab+hRrWxzLnti7fPpR5QhtOU=";
 
         meta = with lib; {
           homepage = "https://github.com/alvaro17f/wrestic";
