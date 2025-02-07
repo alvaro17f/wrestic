@@ -10,7 +10,7 @@ edition = "2021"
 keywords = ["restic", "wrapper", "rust", "backup", "tool"]
 
 [dependencies]
-anyhow = "1.0.81"
+anyhow = "1.0.95"
 clap = { version = "4.5.4", features = ["derive"] }
 clap_complete = "4.5.1"
 cmd_lib = "1.9.3"
