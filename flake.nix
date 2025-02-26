@@ -1,34 +1,88 @@
 {
+  description = "Wrestic";
+
   inputs = {
-    nixpkgs = {
-      url = "github:nixos/nixpkgs/nixos-unstable";
-    };
+    nixpkgs.url = "github:nixos/nixpkgs";
   };
 
   outputs =
-    { self, nixpkgs, ... }:
+    inputs@{ self, nixpkgs, ... }:
     let
-      pkgs = import nixpkgs {
-        system = "x86_64-linux";
-      };
-      lib = pkgs.lib;
+      lib = nixpkgs.lib;
+
+      darwin = [
+        "x86_64-darwin"
+        "aarch64-darwin"
+      ];
+      linux = [
+        "x86_64-linux"
+        "x86_64-linux-musl"
+        "aarch64-linux"
+        "aarch64-linux-android"
+        "i86_64-linux"
+      ];
+      allSystems = darwin ++ linux;
+
+      forEachSystem = systems: f: lib.genAttrs systems (system: f system);
+      forAllSystems = forEachSystem allSystems;
     in
     {
-      defaultPackage.${pkgs.system} = pkgs.rustPlatform.buildRustPackage {
-        name = "wrestic";
-        src = self;
-        useFetchCargoVendor = true;
-        cargoHash = "sha256-iEguoD1xaNU/MFVZlVcab+hRrWxzLnti7fPpR5QhtOU=";
+      packages = forAllSystems (
+        system:
+        let
+          pkgs = import nixpkgs { inherit system; };
+        in
+        rec {
+          # e.g. nix build .#wrestic
+          wrestic = pkgs.rustPlatform.buildRustPackage rec {
+            name = "wrestic";
+            src = ./.;
+            cargoLock = {
+              lockFile = ./Cargo.lock;
+            };
+          };
 
-        meta = with lib; {
-          homepage = "https://github.com/alvaro17f/wrestic";
-          description = "wrestic";
-          license = licenses.mit;
-          maintainers = with maintainers; [ alvaro17f ];
-          platforms = platforms.unix;
-          #changelog = "https://github.com/alvaro17f/wrestic/blob/${version}/CHANGELOG.md";
-          mainProgram = "wrestic";
-        };
-      };
+          # e.g. nix build .#cross.x86_64-linux-musl.wrestic --impure
+          cross = forEachSystem (lib.filter (sys: sys != system) allSystems) (
+            targetSystem:
+            let
+              crossPkgs = import nixpkgs {
+                localSystem = system;
+                crossSystem = targetSystem;
+              };
+            in
+            {
+              inherit (crossPkgs) wrestic;
+            }
+          );
+        }
+      );
+      defaultPackage = forAllSystems (system: self.packages.${system}.wrestic);
+      devShells = forAllSystems (
+        system:
+        let
+          pkgs = import nixpkgs { inherit system; };
+          devRequirements = with pkgs; [
+            gcc
+            gnumake
+            clippy
+            rustc
+            cargo
+            rustfmt
+            rust-analyzer
+          ];
+        in
+        {
+          default = pkgs.mkShell {
+            RUST_BACKTRACE = 1;
+
+            # For cross compilation
+            NIXPKGS_ALLOW_UNSUPPORTED_SYSTEM = 1;
+
+            buildInputs = devRequirements;
+            packages = devRequirements;
+          };
+        }
+      );
     };
 }
